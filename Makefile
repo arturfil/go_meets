@@ -14,6 +14,9 @@ run: build
 	@env PORT=${PORT} DSN=${DSN} ./${BINARY} &
 	@echo "Backend started"
 
+stop:
+	@-pkill -SIGTERM -f "./${BINARY}"
+
 init.up:
 	cat migrations/init.up.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 

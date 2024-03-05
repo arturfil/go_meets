@@ -22,8 +22,8 @@ func Routes() http.Handler {
 
     router.Route("/api/v1/", func(router chi.Router) {
 
-        router.Get("/meetings")
-        router.Get("/healthcheck")
+        // router.Get("/meetings")
+        router.Get("/healthcheck", healthCheck)
     })
 
 
