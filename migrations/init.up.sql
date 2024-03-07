@@ -1,4 +1,3 @@
-CREATE TYPE user_type AS ENUM('student', 'teacher');
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
@@ -6,7 +5,7 @@ CREATE TABLE users (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "is_admin" boolean NOT NULL DEFAULT FALSE,
-  "user_type" user_type NOT NULL,
+  "is_teacher" boolean DEFAULT FALSE,
   "email" varchar UNIQUE NOT NULL,
   "password" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),

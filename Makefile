@@ -23,3 +23,4 @@ init.up:
 init.down:
 	cat migrations/init.down.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
+restart: stop run
