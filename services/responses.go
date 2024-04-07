@@ -8,5 +8,5 @@ type JsonResponse struct {
 
 type TokenResponse struct {
     Token string `json:"token"`
-    User *User
+ //   User *User
 }

@@ -71,6 +71,10 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...h
     return nil
 }
 
+func WriteERROR(w http.ResponseWriter, status int, err error) {
+    WriteJSON(w, status, map[string]string{"error": err.Error()})
+}
+
 // ErrorJSON - function that will write the error into a json response
 func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
     statusCode := http.StatusBadRequest

@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/jackc/pgconn"
@@ -11,39 +12,37 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type DBRepo interface {
-    ConnectPostgres(dsn string) (*DB, error)
-    checkDB(d *sql.DB) error
-}
-
 type DB struct {
-    DB *sql.DB
+    Client *sql.DB
 }
-
-var dbConn = &DB{}
 
 const maxOpenDbConn = 10
 const maxIdleDbConn = 5
 const maxDbLifeTime = 5 * time.Minute
 
-func ConnectPostgres(dsn string) (*DB, error) {
-    d, err := sql.Open("pgx", dsn)
+// NewDatabase - New db connection with a particular model
+func NewDatabase(dsn string) (*DB, error) {
+    dbConn := &DB{}
+
+    db, err := sql.Open("pgx", dsn)
     if err != nil {
         return nil, err
     }
-    d.SetMaxOpenConns(maxOpenDbConn)
-    d.SetMaxIdleConns(maxIdleDbConn)
-    d.SetConnMaxLifetime(maxDbLifeTime)
+    db.SetMaxOpenConns(maxOpenDbConn)
+    db.SetMaxIdleConns(maxIdleDbConn)
+    db.SetConnMaxLifetime(maxDbLifeTime)
 
-    err = checkDB(d)
+    err = checkDB(db)
     if err != nil {
-        return nil, err
+        log.Fatal(err)
     }
 
-    dbConn.DB = d
+    dbConn.Client = db
+
     return dbConn, nil
 }
 
+// checkDB - will check db connection
 func checkDB(d *sql.DB) error {
     err := d.Ping()
     if err != nil {
