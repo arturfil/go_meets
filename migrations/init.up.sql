@@ -12,6 +12,11 @@ CREATE TABLE users (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE requests (
+    "id" FK users.id,
+    "status" varchar
+)
+
 CREATE TABLE meetings (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "subject_id" uuid NOT NULL,

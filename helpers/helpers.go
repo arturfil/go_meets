@@ -28,23 +28,22 @@ var MessageLogs = &Message{
 
 // ReadJSON - helper method that reads incoming json from http requests
 func ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
-    // max bytes that we can read, it's more than enough
     maxBytes := 1048576 // one megabyte
 
-    r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
-    dec := json.NewDecoder(r.Body)
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(data)
 
-    err := dec.Decode(data)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    err = dec.Decode(&struct{}{})
-    if err != io.EOF {
-        return errors.New("body must have only a single parent json object")
-    }
+	err = dec.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("body must have only a single json value")
+	}
 
-    return nil
+	return nil
 }
 
 // WriteJSON - method to write data into a json response 

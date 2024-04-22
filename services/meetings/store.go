@@ -15,25 +15,41 @@ func NewStore(db *sql.DB) *Store {
     return &Store{db: db}
 }
 
-func (s *Store) GetAllMeetings() ([]types.Meeting, error) {
+func (s *Store) GetAllMeetings() ([]types.MeetingResponse, error) {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout) 
     defer cancel()
 
-    query := ` SELECT * FROM meetings;`
+    query := `
+       SELECT 
+            m.id, 
+            s.name AS "subject",
+            u.first_name AS "student",
+            t.first_name AS "teacher",
+            m.student_attended, 
+            m.start_time,
+            m.end_time,
+            m.created_at,
+            m.updated_at
+        FROM meetings m
+        INNER JOIN "subjects" s ON s.id = m.subject_id
+        LEFT JOIN "users" u ON u.id = m.student_id
+        LEFT JOIN "users" t ON t.id = m.teacher_id 
+        ; 
+    `
 
     rows, err := s.db.QueryContext(ctx, query)
     if err != nil {
         return nil, err 
     }
 
-    var meetings []types.Meeting
+    var meetings []types.MeetingResponse
     for rows.Next() {
-        var meeting types.Meeting
+        var meeting types.MeetingResponse
         err := rows.Scan(
             &meeting.ID,
-            &meeting.SubjectID,
-            &meeting.StudentID,
-            &meeting.TeacherID,
+            &meeting.Subject,
+            &meeting.Student,
+            &meeting.Teacher,
             &meeting.StudentAttended,
             &meeting.StartTime,
             &meeting.EndTime,

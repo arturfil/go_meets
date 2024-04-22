@@ -7,7 +7,7 @@ services:
     image: 'postgres:14.2'
     ports:
       - "5432:5432"
-    restart: unless-stopped
+    restart: no
     deploy:
       mode: replicated
       replicas: 1

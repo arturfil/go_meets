@@ -11,7 +11,9 @@ import (
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/services/meetings"
 	"github.com/arturfil/meetings_app_server/services/user"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 type AppServer struct {
@@ -33,6 +35,18 @@ func (app *AppServer) Serve() error {
     helpers.MessageLogs.InfoLog.Println("API listenting on port", app.addr)
 
     router := chi.NewRouter()
+
+    router.Use(middleware.Recoverer)
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
+
     router.Mount("/api/", router)
 
     // user entity
@@ -45,8 +59,7 @@ func (app *AppServer) Serve() error {
     meetingsHandler := meetings.NewHandler(meetingsStore)
     meetingsHandler.RegisterRoutes(router)
 
-    srv := &http.Server{
-        Addr: fmt.Sprintf("%s", app.addr),
+    srv := &http.Server{ Addr: fmt.Sprintf("%s", app.addr),
         Handler: router,
     }
 

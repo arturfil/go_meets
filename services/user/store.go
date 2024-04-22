@@ -24,18 +24,13 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
             id, email, first_name, last_name, password, created_at, updated_at 
 		FROM users 
 		WHERE email = $1
- 
     `
 
     var user types.User
      
     // scan user
-    row, err := s.db.QueryContext( ctx, query, email)
-    if err != nil {
-        return nil, err
-    }
-
-    err = row.Scan(
+    row := s.db.QueryRowContext(ctx, query, email)
+    err := row.Scan(
         &user.ID,
         &user.Email,
         &user.FirstName,
@@ -47,6 +42,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
     if err != nil {
         return nil, err
     }
+
     return &user, nil
 }
 
@@ -54,8 +50,29 @@ func (s *Store) GetUserById(id string) (*types.User, error) {
     return &types.User{}, nil
 }
 
-func (s *Store) SignUp(user types.User) (*types.User, error) {
-    return &types.User{}, nil
+func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
+    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+    defer cancel()
+
+    query := `
+        INSERT INTO users (first_name, last_name, email, password)
+        VALUES ($1, $2, $3, $4)
+    ` 
+
+    _, err := s.db.QueryContext(
+        ctx,
+        query,
+        user.FirstName,
+        user.LastName,
+        user.Email,
+        user.Password, // already encrypted at this point
+    )
+    if err != nil {
+        return err
+    }
+
+
+    return nil
 }
 
 func (s *Store) PasswordMatches(plainText string) (bool, error) {

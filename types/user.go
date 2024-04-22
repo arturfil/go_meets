@@ -1,12 +1,12 @@
 package types
 
 type UserStore interface {
-    GetUserByEmail(email string) (*User, error)
-    GetUserById(id string) (*User, error)
-    SignUp(user User) (*User, error)
-    PasswordMatches(plainText string) (bool, error)
-    Update() error
-    Delete(id string) error
+	GetUserByEmail(email string) (*User, error)
+	GetUserById(id string) (*User, error)
+	CreateUser(user RegisterUserPayload) error
+	PasswordMatches(plainText string) (bool, error)
+	Update() error
+	Delete(id string) error
 }
 
 type User struct {
@@ -31,4 +31,3 @@ type LoginUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=100"`
 }
-
