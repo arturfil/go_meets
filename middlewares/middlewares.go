@@ -7,11 +7,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/arturfil/meetings_app_server/types"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-// app issuer
-var issuer string = "meetings.app"
 
 type Claims struct {
     UserName string `json:"name"`
@@ -19,16 +17,15 @@ type Claims struct {
 }
 
 func IsAuthorized(next http.Handler) http.Handler {
-    var myKey = []byte(os.Getenv("JWT_SECRET"))
-
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        _, _, err := verifyToken(w, r)
-        if err != nil {
-            return 
-        }
+    _, _, err := verifyToken(w, r)
+    if err != nil {
+        w.WriteHeader(http.StatusUnauthorized)
+        return
+    }
 
-        next.ServeHTTP(w, r)
-        return 
+    next.ServeHTTP(w, r)
+    return
     })
 }
 
@@ -44,6 +41,10 @@ func verifyToken(w http.ResponseWriter, r *http.Request) (string, *Claims, error
     // check that there are two parts: bearer and the token
     headerParts := strings.Split(authHeader, " ")
     if len(headerParts) != 2 { // if it doesn't have Bearer Token...
+        return "", nil, errors.New("invalid auth header")
+    }
+
+    if headerParts[0] != "Bearer" {
         return "", nil, errors.New("unauthorized: no Bearer")
     }
 
@@ -66,8 +67,8 @@ func verifyToken(w http.ResponseWriter, r *http.Request) (string, *Claims, error
     }
 
     // is issuers of token don't match
-    if claims.Issuer != issuer {
-        return "", nil, errors.New("incorrect issure")
+    if claims.Issuer != types.Domain {
+        return "", nil, errors.New("incorrect issuer")
     }
 
     return token, claims, nil

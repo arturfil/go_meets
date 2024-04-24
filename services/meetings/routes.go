@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/arturfil/meetings_app_server/helpers"
+	"github.com/arturfil/meetings_app_server/middlewares"
 	"github.com/arturfil/meetings_app_server/types"
 	"github.com/go-chi/chi/v5"
 )
@@ -21,8 +22,11 @@ func NewHandler(store types.MeetingStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
-    router.Get("/v1/meetings", h.getAllMeetings)
-    router.Post("/v1/meetings/create", h.createMeeting)
+    router.Route("/v1/meetings", func(router chi.Router) {
+        router.Use(middlewares.IsAuthorized)
+        router.Get("/", h.getAllMeetings)
+        router.Post("/create", h.createMeeting)
+    })
 }
 
 func (h *Handler) getAllMeetings(w http.ResponseWriter, r *http.Request) {

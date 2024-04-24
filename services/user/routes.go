@@ -125,14 +125,17 @@ func passwordMatches(hashed, plainText string) bool {
 }
 
 func createJWT(secret []byte, id string) (string, error) {
+    token := jwt.New(jwt.SigningMethodHS256)
+    
     expiration := time.Hour * 42
 
-    token := jwt.NewWithClaims(
-        jwt.SigningMethodHS256,
-        jwt.MapClaims{
-            "userID": id,
-            "expiresAt": time.Now().Add(expiration).Unix(),
-    })
+    claims := token.Claims.(jwt.MapClaims)
+    claims["sub"] = fmt.Sprint(id)
+    claims["aud"] = types.Domain
+    claims["iss"] = types.Domain
+    claims["exp"] = expiration
+
+    // maybe add admin here
 
     tokenString, err := token.SignedString(secret)
     if err != nil {
