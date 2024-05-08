@@ -27,6 +27,7 @@ func NewHandler(store types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
     router.Get("/v1/healthcheck", h.healthCheck)
+    router.Get("/v1/getteachers", h.getAllTeachers)
     router.Post("/v1/signup", h.signupUser)
     router.Post("/v1/login", h.loginUser)
 }
@@ -117,6 +118,16 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
     }
 
     helpers.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+}
+
+func (h *Handler) getAllTeachers(w http.ResponseWriter, r *http.Request) {
+    teachers, err := h.store.GetTeachers()
+    if err != nil {
+        helpers.ErrorJSON(w, fmt.Errorf("Couldn't get the teachers %v", err))
+        return 
+    }
+
+    helpers.WriteJSON(w, http.StatusOK, teachers)
 }
 
 func passwordMatches(hashed, plainText string) bool {

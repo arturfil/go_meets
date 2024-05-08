@@ -10,9 +10,10 @@ import (
 	"github.com/arturfil/meetings_app_server/db"
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/services/meetings"
+	"github.com/arturfil/meetings_app_server/services/subjects"
 	"github.com/arturfil/meetings_app_server/services/user"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
@@ -58,6 +59,11 @@ func (app *AppServer) Serve() error {
     meetingsStore := meetings.NewStore(app.db)
     meetingsHandler := meetings.NewHandler(meetingsStore)
     meetingsHandler.RegisterRoutes(router)
+
+    // subjects entity 
+    subjectsStore := subjects.NewStore(app.db)
+    subjectsHandler := subjects.NewHandler(subjectsStore)
+    subjectsHandler.RegisterRoutes(router)
 
     srv := &http.Server{ Addr: fmt.Sprintf("%s", app.addr),
         Handler: router,

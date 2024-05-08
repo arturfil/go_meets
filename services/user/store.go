@@ -75,8 +75,42 @@ func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
     return nil
 }
 
-func (s *Store) PasswordMatches(plainText string) (bool, error) {
-    return false, nil
+func (s *Store) GetTeachers() ([]types.User, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+    defer cancel()
+
+    query := `
+        SELECT id, email, first_name, last_name, is_teacher, is_admin, created_at, updated_at
+        FROM users u WHERE u.is_teacher = TRUE;
+    `
+    
+    rows, err := s.db.QueryContext(ctx, query)
+    if err != nil {
+        return nil, err
+    }
+
+    var teachers []types.User
+    for rows.Next() {
+        var teacher types.User
+        err := rows.Scan(
+            &teacher.ID,
+            &teacher.Email,
+            &teacher.FirstName,
+            &teacher.LastName,
+            &teacher.IsTeacher,
+            &teacher.IsAdmin,
+            &teacher.CreatedAt,
+            &teacher.UpdatedAt,
+
+        )
+        if err != nil {
+            return nil, err
+        }
+
+        teachers = append(teachers, teacher)
+    }
+
+    return teachers, nil
 }
 
 func (s *Store) Update() error {

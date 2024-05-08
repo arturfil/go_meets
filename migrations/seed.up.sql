@@ -1,3 +1,4 @@
+-- insert subjects
 INSERT INTO subjects (id, name, description)
 VALUES 
     ('0bd925f4-bbe7-4f03-8796-9e8badc4101e', 'Calculus 101', 'Differential and Integral calculus'),
@@ -5,6 +6,7 @@ VALUES
     ('a78aaa5a-5e0a-4c7c-9944-741a76099750', 'Finance 204', 'Coroprate Finance')
 ;
 
+-- insert users
 INSERT INTO users (id, first_name, last_name, email, is_admin, is_teacher, password)
 VALUES 
     ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', 'Test', 'User', 'test@user.com', true, true, '$2a$12$jqPQIqtZR5gZBupqvRzUfO7IAOCJJnjaAYhSwPxUS7P6DtyAeHUwu'),
