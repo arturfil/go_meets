@@ -124,25 +124,17 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 // getUserByToken - you will get the user by when providing a jwt token
 func (h *Handler) getUserByToken(w http.ResponseWriter, r *http.Request) {
 	var myKey = []byte(os.Getenv("JWT_SECRET"))
-    fmt.Println("sKey ", myKey)
-	type TokenClaim struct {
-		Sub string `json:"sub"`
-		Aud string `json:"aud"`
-		Iss string `json:"iss"`
-		Exp string `json:"exp"`
-		jwt.StandardClaims
-	}
 
-	claims := &TokenClaim{}
+	claims := &types.TokenClaim{}
 
-	token, err := jwt.ParseWithClaims(strings.Split(r.Header["Authorization"][0], " ")[1], claims, func(token *jwt.Token) (interface{}, error) {
-		// if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		// 	return nil, fmt.Errorf("there was an error")
-		// }
+    tokenString := strings.Split(r.Header["Authorization"][0], " ")[1]
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		 return nil, fmt.Errorf("there was an error")
+		}
 		return myKey, nil
 	})
-
-    log.Println("before valid: ", token.Valid)
 
 	if token.Valid {
 		if err != nil {
@@ -154,9 +146,6 @@ func (h *Handler) getUserByToken(w http.ResponseWriter, r *http.Request) {
 			helpers.MessageLogs.InfoLog.Print(err)
 		}
 
-        log.Print("user", user)
-
-		user.Password = ""
 		helpers.WriteJSON(w, http.StatusOK, user)
 		return
 	}
@@ -179,19 +168,19 @@ func passwordMatches(hashed, plainText string) bool {
 }
 
 func createJWT(secret []byte, id string) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
+	// token := jwt.New(jwt.SigningMethodHS256)
 
 	expiration := time.Now().Add(time.Hour * 24).Unix() // add in unix time
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["sub"] = fmt.Sprint(id)
-	claims["aud"] = types.Domain
-	claims["iss"] = types.Domain
-	claims["exp"] = expiration
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, types.TokenClaim{
+        RegisteredClaims: jwt.RegisteredClaims{},
+        Sub: fmt.Sprint(id),
+        Aud: types.Domain,
+        Iss: types.Domain,
+        Exp: fmt.Sprint(expiration),
+    })
 
-	// maybe add admin here
-
-	tokenString, err := token.SignedString(secret)
+	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
