@@ -47,7 +47,28 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 }
 
 func (s *Store) GetUserById(id string) (*types.User, error) {
-    return &types.User{}, nil
+    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+    defer cancel()
+
+    query := `select id, is_admin, email, first_name, password, created_at, updated_at from users where id = $1`
+
+    var user types.User
+    
+    row := s.db.QueryRowContext( ctx, query, id)
+    err := row.Scan(
+        &user.ID,
+        &user.IsAdmin,
+        &user.Email,
+        &user.FirstName,
+        &user.Password,
+        &user.CreatedAt,
+        &user.UpdatedAt,
+    )
+    if err != nil {
+        return nil, err
+    }
+
+    return &user, nil
 }
 
 func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
