@@ -2,6 +2,7 @@ package requests
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/arturfil/meetings_app_server/helpers"
@@ -43,6 +44,13 @@ func (h *Handler) createRequest(w http.ResponseWriter, r *http.Request) {
 
     err := json.NewDecoder(r.Body).Decode(&request)
     if err != nil {
+        helpers.WriteERROR(w, http.StatusInternalServerError, err)
+        return 
+    }
+
+    err = h.store.CreateRequest(request)
+    if err != nil {
+        log.Println("Error\t", log.Lshortfile)
         helpers.WriteERROR(w, http.StatusInternalServerError, err)
         return 
     }

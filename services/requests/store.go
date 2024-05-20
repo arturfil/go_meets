@@ -86,3 +86,7 @@ func (s *Store) CreateRequest(request types.Request) error {
 
     return nil
 }
+
+func (s *Store) UpdateRequest(request types.Request) error {
+    return nil
+}
