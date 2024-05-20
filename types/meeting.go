@@ -4,7 +4,7 @@ import "time"
 
 type MeetingStore interface {
 	GetAllMeetings() ([]MeetingResponse, error)
-	GetMeetingByID(id string) (Meeting, error)
+	GetMeetingByID(id string) (*Meeting, error)
 	CreateMeeting(meeting Meeting) error
 	UpdateMeeting(meeting Meeting) error
 	DeleteMeeting(id string) error

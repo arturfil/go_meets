@@ -64,8 +64,27 @@ func (s *Store) GetAllMeetings() ([]types.MeetingResponse, error) {
     return meetings, nil
 }
 
-func (s *Store) GetMeetingByID(id string) (types.Meeting, error) {
-    return types.Meeting{}, nil
+func (s *Store) GetMeetingByID(id string) (*types.Meeting, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+    defer cancel()
+
+    query := `SELECT * from meetings WHERE id = $1`
+
+    var meeting types.Meeting
+    row := s.db.QueryRowContext(ctx, query, id)
+    err := row.Scan(
+        &meeting.ID,
+        &meeting.StudentAttended,
+        &meeting.StartTime,
+        &meeting.EndTime,
+        &meeting.CreatedAt,
+        &meeting.UpdatedAt,
+    )
+    if err != nil {
+        return nil, err
+    }
+
+    return &meeting, nil
 }
 
 

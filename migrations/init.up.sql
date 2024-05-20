@@ -13,9 +13,9 @@ CREATE TABLE users (
 );
 
 CREATE TABLE requests (
-    "id" FK users.id,
+    "id" uuid PRIMARY KEY REFERENCES users(id),
     "status" varchar
-)
+);
 
 CREATE TABLE meetings (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
