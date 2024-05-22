@@ -12,6 +12,11 @@ CREATE TABLE users (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE roles (
+    "id" uuid PRIMARY KEY REFERENCES users(id),
+    "description" varchar
+);
+
 CREATE TABLE requests (
     "id" uuid PRIMARY KEY REFERENCES users(id),
     "status" varchar
