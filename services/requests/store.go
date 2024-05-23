@@ -15,12 +15,14 @@ func NewStore(db *sql.DB) *Store {
     return &Store{db: db}
 }
 
-func (s *Store) GetAllRequests() ([]types.Request, error) {
+func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 
     query := `
-        SELECT * FROM requests;
+        SELECT r.id, u.first_name, u.last_name, r.status FROM requests r
+        JOIN users u ON u.id = r.id;
+    ;
     `
 
     rows, err := s.db.QueryContext(ctx, query)
@@ -28,11 +30,13 @@ func (s *Store) GetAllRequests() ([]types.Request, error) {
         return nil, err
     }
 
-    var requests []types.Request
+    var requests []types.RequestResponse
     for rows.Next() {
-        var request types.Request
+        var request types.RequestResponse
         err := rows.Scan(
             &request.ID,
+            &request.FirstName,
+            &request.LastName,
             &request.Status,
         )
         if err != nil {

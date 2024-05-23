@@ -1,12 +1,19 @@
 package types
 
 type RequestStore interface {
-    CreateRequest(request Request) error
-    GetAllRequests() ([]Request, error)
-    UpdateRequest(request Request) error
+	CreateRequest(request Request) error
+	GetAllRequests() ([]RequestResponse, error)
+	UpdateRequest(request Request) error
 }
 
 type Request struct {
-    ID string `json:"id"`
-    Status string `json:"status"`
+	ID     string `json:"id"`
+	Status string `json:"status"`
+}
+
+type RequestResponse struct {
+	ID        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Status    string `json:"status"`
 }
