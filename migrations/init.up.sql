@@ -13,8 +13,13 @@ CREATE TABLE users (
 );
 
 CREATE TABLE roles (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "description" varchar
+);
+
+CREATE TABLE role_relations (
     "id" uuid PRIMARY KEY REFERENCES users(id),
-    "description" varchar
+    "role_id" uuid REFERENCES roles(id)
 );
 
 CREATE TABLE requests (
