@@ -18,8 +18,10 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE role_relations (
-    "id" uuid PRIMARY KEY REFERENCES users(id),
-    "role_id" uuid REFERENCES roles(id)
+    "user_id" uuid REFERENCES users(id),
+    "role_id" uuid REFERENCES roles(id),
+    PRIMARY KEY ("user_id", "role_id")
+
 );
 
 CREATE TABLE requests (

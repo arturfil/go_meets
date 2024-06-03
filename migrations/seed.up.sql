@@ -45,4 +45,8 @@ INSERT INTO public.meetings VALUES ('fecb6ec1-fd05-41da-bd11-fdafe5a69693', '0bd
 INSERT INTO public.meetings VALUES ('9605dc9a-f130-435a-897e-9332ebd52e62', '0bd925f4-bbe7-4f03-8796-9e8badc4101e', 'aef0a244-f285-4948-a8b7-68b610a879d0', '9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', false, '2024-05-17 15:30:00+00', '2024-05-17 16:30:00+00', '0001-01-01 00:00:00+00', '0001-01-01 00:00:00+00');
 INSERT INTO public.meetings VALUES ('030524de-cb9d-45a8-901c-84df7c7220d6', '0bd925f4-bbe7-4f03-8796-9e8badc4101e', 'aef0a244-f285-4948-a8b7-68b610a879d0', '9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', false, '2024-05-20 18:30:00+00', '2024-05-20 07:30:00+00', '0001-01-01 00:00:00+00', '0001-01-01 00:00:00+00');
 
+INSERT INTO roles (id, description) VALUES ('52431aac-82d8-46df-8676-97b748e7bea4', 'admin');
+INSERT INTO roles (id, description) VALUES ('71dc50c1-1934-4da1-91a5-2fb73fadb39e', 'teacher');
+INSERT INTO roles (id, description) VALUES ('22b3f2ca-3e98-447f-a807-9609fa496ae9', 'user');
 
+INSERT INTO role_relations VALUES ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', '71dc50c1-1934-4da1-91a5-2fb73fadb39e');

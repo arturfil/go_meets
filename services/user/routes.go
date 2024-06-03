@@ -101,7 +101,8 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	// check if users exists
 	user, err := h.store.GetUserByEmail(body.Email)
 	if err != nil {
-		helpers.ErrorJSON(w, fmt.Errorf("User does not exist %v", err), http.StatusInternalServerError)
+		helpers.ErrorJSON(w, fmt.Errorf("Invalid credentials, please try again"), http.StatusInternalServerError)
+        log.Println("User does not exist", err)
 		return
 	}
 
