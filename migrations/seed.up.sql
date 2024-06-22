@@ -49,4 +49,6 @@ INSERT INTO roles (id, description) VALUES ('52431aac-82d8-46df-8676-97b748e7bea
 INSERT INTO roles (id, description) VALUES ('71dc50c1-1934-4da1-91a5-2fb73fadb39e', 'teacher');
 INSERT INTO roles (id, description) VALUES ('22b3f2ca-3e98-447f-a807-9609fa496ae9', 'user');
 
+INSERT INTO role_relations VALUES ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', '52431aac-82d8-46df-8676-97b748e7bea4');
 INSERT INTO role_relations VALUES ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', '71dc50c1-1934-4da1-91a5-2fb73fadb39e');
+INSERT INTO role_relations VALUES ('aef0a244-f285-4948-a8b7-68b610a879d0', '52431aac-82d8-46df-8676-97b748e7bea4');

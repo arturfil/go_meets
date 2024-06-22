@@ -9,6 +9,7 @@ import (
 
 	"github.com/arturfil/meetings_app_server/types"
 	"github.com/golang-jwt/jwt/v5"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Claims struct {
@@ -16,16 +17,19 @@ type Claims struct {
     jwt.RegisteredClaims
 }
 
+
 func IsAuthorized(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-    _, _, err := verifyToken(w, r)
-    if err != nil {
-        w.WriteHeader(http.StatusUnauthorized)
-        return
-    }
+        _, _, err := verifyToken(w, r)
+        if err != nil {
+            w.WriteHeader(http.StatusUnauthorized)
+            return
+        }
 
-    next.ServeHTTP(w, r)
-    return
+
+        
+        next.ServeHTTP(w, r)
+        return
     })
 }
 

@@ -9,6 +9,7 @@ import (
 	"strings"
 	 "time"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/types"
 	"github.com/go-chi/chi/v5"

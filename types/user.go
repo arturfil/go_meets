@@ -11,6 +11,13 @@ type UserStore interface {
 	Delete(id string) error
 }
 
+type UsersAndRoles struct {
+	UserID      string `json:"user_id"`
+	Email       string `json:"email"`
+	RoleID      string `json:"role_id"`
+	Description string `json:"description"`
+}
+
 type User struct {
 	ID        string `json:"id"`
 	Email     string `json:"email"`
@@ -37,9 +44,9 @@ type LoginUserPayload struct {
 }
 
 type TokenClaim struct {
-    Sub string `json:"sub"`
-    Aud string `json:"aud"`
-    Iss string `json:"iss"`
-    Exp string `json:"exp"`
-    jwt.RegisteredClaims
+	Sub string `json:"sub"`
+	Aud string `json:"aud"`
+	Iss string `json:"iss"`
+	Exp string `json:"exp"`
+	jwt.RegisteredClaims
 }

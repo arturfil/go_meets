@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/arturfil/meetings_app_server/db"
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/services/meetings"
@@ -47,7 +48,6 @@ func (app *AppServer) Serve() error {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-
 
     router.Mount("/api/", router)
 

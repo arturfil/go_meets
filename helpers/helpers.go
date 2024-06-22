@@ -3,12 +3,17 @@ package helpers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/arturfil/meetings_app_server/services"
+	"github.com/arturfil/meetings_app_server/types"
+	"github.com/golang-jwt/jwt/v4"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Envelope map[string]interface{}
@@ -70,6 +75,7 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...h
     return nil
 }
 
+// WriteERROR - Method that writes error back to the api in json format
 func WriteERROR(w http.ResponseWriter, status int, err error) {
     WriteJSON(w, status, map[string]string{"error": err.Error()})
 }
@@ -85,4 +91,24 @@ func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
     payload.Error = true
     payload.Message = err.Error()
     WriteJSON(w, statusCode, payload)
+}
+
+func GetTokenClaims(r *http.Request) (*jwt.Token, types.TokenClaim, error) {
+	var myKey = []byte(os.Getenv("JWT_SECRET"))
+
+    claims := &types.TokenClaim{}
+
+    tokenString := strings.Split(r.Header["Authorization"][0], " ")[1]
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if err, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		 return nil, fmt.Errorf("there was an error %v", err)
+		}
+		return myKey, nil
+	})
+    if err != nil {
+        return &jwt.Token{}, types.TokenClaim{}, err
+    }
+
+    return token, *claims, nil
 }
