@@ -97,8 +97,6 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Print("body", body.Email)
-
 	// check if users exists
 	user, err := h.store.GetUserByEmail(body.Email)
 	if err != nil {

@@ -4,8 +4,8 @@ import "github.com/golang-jwt/jwt/v4"
 
 type UserStore interface {
 	GetTeachers() ([]User, error)
-	GetUserByEmail(email string) (*User, error)
-	GetUserById(id string) (*User, error)
+	GetUserByEmail(email string) (*UserReponse, error)
+	GetUserById(id string) (*UserReponse, error)
 	CreateUser(user RegisterUserPayload) error
 	Update() error
 	Delete(id string) error
@@ -16,6 +16,17 @@ type UsersAndRoles struct {
 	Email       string `json:"email"`
 	RoleID      string `json:"role_id"`
 	Description string `json:"description"`
+}
+
+type UserReponse struct {
+	ID        string   `json:"id"`
+	Email     string   `json:"email"`
+	FirstName string   `json:"first_name,omitempty"`
+	LastName  string   `json:"last_name,omitempty"`
+	Password  string `json:"-"`
+	Roles     []string `json:"roles"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
 }
 
 type User struct {

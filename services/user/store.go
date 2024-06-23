@@ -15,7 +15,7 @@ func NewStore(db *sql.DB) *Store {
     return &Store{db: db}
 }
 
-func (s *Store) GetUserByEmail(email string) (*types.User, error) {
+func (s *Store) GetUserByEmail(email string) (*types.UserReponse, error) {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 
@@ -26,7 +26,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 		WHERE email = $1
     `
 
-    var user types.User
+    var user types.UserReponse
      
     // scan user
     row := s.db.QueryRowContext(ctx, query, email)
@@ -43,30 +43,45 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
         return nil, err
     }
 
+    roles, err := s.getUserRoles(user.ID)
+    if err != nil {
+        return nil, err
+    }
+
+    user.Roles = roles
+
     return &user, nil
 }
 
-func (s *Store) GetUserById(id string) (*types.User, error) {
+func (s *Store) GetUserById(id string) (*types.UserReponse, error) {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 
-    query := `select id, is_admin, email, first_name, password, created_at, updated_at from users where id = $1`
+    query := `
+        SELECT u.id, u.email, u.first_name, u.created_at, u.updated_at 
+        FROM users u where id = $1
+    `
 
-    var user types.User
+    var user types.UserReponse
     
     row := s.db.QueryRowContext( ctx, query, id)
     err := row.Scan(
         &user.ID,
-        &user.IsAdmin,
         &user.Email,
         &user.FirstName,
-        &user.Password,
         &user.CreatedAt,
         &user.UpdatedAt,
     )
     if err != nil {
         return nil, err
     }
+
+    roles, err := s.getUserRoles(user.ID)
+    if err != nil {
+        return nil, err
+    }
+
+    user.Roles = roles
 
     return &user, nil
 }
@@ -140,4 +155,35 @@ func (s *Store) Update() error {
 
 func (s *Store) Delete(id string) error {
     return nil
+}
+
+func (s *Store) getUserRoles(userId string) ([]string, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+    defer cancel()
+
+    query := `
+        SELECT r.description FROM users u
+        LEFT JOIN role_relations rr ON u.id = rr.user_id
+        LEFT JOIN roles r ON r.id = rr.role_id 
+        WHERE u.id = $1
+    `
+
+    rows, err := s.db.QueryContext(ctx, query, userId)
+    if err != nil {
+        return nil, err
+    }
+    
+    var roles []string
+    for rows.Next() {
+        var role string
+        err := rows.Scan(&role)
+        
+        if err != nil {
+            return nil, err
+        }
+
+        roles = append(roles, role)
+    }
+
+    return roles, nil
 }
