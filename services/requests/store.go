@@ -108,6 +108,29 @@ func (s *Store) UpdateRequest(userId string, request types.Request) error {
         return err
     }
 
+    err = s.hasRole(request.ID, "teacher")
+    if err == nil {
+        return errors.New("User already has this priviledge")
+    }
+
+    role_relation_query := `
+        INSERT INTO role_relations
+        (user_id, role_id)
+        VALUES ($1, $2)
+    `
+
+    if request.Status == "approved" {
+        _, err = s.db.ExecContext(
+            ctx,
+            role_relation_query,
+            &request.ID,
+            "71dc50c1-1934-4da1-91a5-2fb73fadb39e",
+        )
+        if err != nil {
+            return err
+        }
+    }
+
     query := `
         UPDATE requests
         SET status = $1
