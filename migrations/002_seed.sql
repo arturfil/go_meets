@@ -1,4 +1,5 @@
-
+-- +goose Up
+-- +goose StatementBegin
 --
 -- TOC entry 3384 (class 0 OID 16666)
 -- Dependencies: 213
@@ -52,3 +53,14 @@ INSERT INTO roles (id, description) VALUES ('22b3f2ca-3e98-447f-a807-9609fa496ae
 INSERT INTO role_relations VALUES ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', '52431aac-82d8-46df-8676-97b748e7bea4');
 INSERT INTO role_relations VALUES ('9ff612d2-f2d0-4118-a9fe-b4dee796d2c3', '71dc50c1-1934-4da1-91a5-2fb73fadb39e');
 INSERT INTO role_relations VALUES ('aef0a244-f285-4948-a8b7-68b610a879d0', '52431aac-82d8-46df-8676-97b748e7bea4');
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+TRUNCATE TABLE subjects CASCADE;
+TRUNCATE TABLE users CASCADE;
+TRUNCATE TABLE requests CASCADE;
+TRUNCATE TABLE meetings CASCADE;
+TRUNCATE TABLE roles CASCADE;
+TRUNCATE TABLE role_relations CASCADE;
+-- +goose StatementEnd

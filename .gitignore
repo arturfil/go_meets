@@ -1,2 +1,3 @@
 .env
 db/cached-db-data
+.air.toml

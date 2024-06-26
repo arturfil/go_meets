@@ -23,16 +23,11 @@ stop:
 test.unittests:
 	go test -v --tags=unittests ./...
 
-init.up:
-	cat migrations/init.up.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+db.status:
+	@GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=$(DSN) goose -dir=$(MIGRATIONS_PATH) status
 
-init.down:
-	cat migrations/init.down.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+db.up:
+	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=$(DSN) goose -dir=$(MIGRATIONS_PATH) up
 
-seed.up:
-	cat migrations/seed.up.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
-
-seed.down:
-	cat migrations/seed.down.sql | docker exec -i ${DOCKER_CONTAINER_DB_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
 restart: stop run
