@@ -1,3 +1,6 @@
 .env
 db/cached-db-data
 .air.toml
+tmp/
+.github/
+

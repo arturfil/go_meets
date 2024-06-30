@@ -36,8 +36,8 @@ CREATE TABLE meetings (
   "student_id" uuid NOT NULL,
   "teacher_id" uuid NOT NULL,
   "student_attended" bool,
-  "start_time" timestamptz NOT NULL,
-  "end_time" timestamptz NOT NULL,
+  "meeting_time" timestamptz NOT NULL,
+  "meeting_day" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -54,6 +54,8 @@ CREATE TABLE teachings (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "teacher_id" uuid NOT NULL,
   "subject_id" uuid NOT NULL,
+  "opening_time" timestamptz NOT NULL,
+  "closing_time" timestamptz NOT NULL,
   "hourly_rate" uuid NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())

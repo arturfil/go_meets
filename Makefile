@@ -6,10 +6,13 @@ up:
 down:
 	docker-compose down
 
-build:
+build.dev:
 	go build -o ${BINARY} ./cmd/server/main.go
 
-run: build
+build.prod:
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${BINARY} ./cmd/server/main.go
+
+run: build.dev
 	@echo "Starting backend"
 	@env PORT=${PORT} DSN=${DSN} JWT_SECRET=${JWT_SECRET} ./${BINARY} &
 	@echo "Backend started"
@@ -29,5 +32,7 @@ db.status:
 db.up:
 	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=$(DSN) goose -dir=$(MIGRATIONS_PATH) up
 
+db.down:
+	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=$(DSN) goose -dir=$(MIGRATIONS_PATH) down 
 
 restart: stop run
