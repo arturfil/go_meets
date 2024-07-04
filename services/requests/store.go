@@ -21,7 +21,7 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
     defer cancel()
 
     query := `
-        SELECT r.id, u.first_name, u.last_name, r.status FROM requests r
+        SELECT r.id, u.first_name, u.last_name, r.status, r.type FROM requests r
         JOIN users u ON u.id = r.id;
     ;
     `
@@ -39,6 +39,7 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
             &request.FirstName,
             &request.LastName,
             &request.Status,
+            &request.Type,
         )
         if err != nil {
             return nil, err
@@ -53,7 +54,7 @@ func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
     defer cancel()
 
     query := `
-        SELECT r.id, r.status, u.first_name, u.last_name  
+        SELECT r.id, r.status, u.first_name, u.last_name, r.type, r.subject_request_type, r.subject_request_name
         FROM requests r 
         INNER JOIN users u ON u.id = r.id
         WHERE r.id = $1
@@ -66,6 +67,9 @@ func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
         &request.Status,
         &request.FirstName,
         &request.LastName,
+        &request.Type,
+        &request.SubjectRequestType,
+        &request.SubjectRequestName,
     )
     if err != nil {
         return nil, err
@@ -119,12 +123,12 @@ func (s *Store) UpdateRequest(userId string, request types.Request) error {
         VALUES ($1, $2)
     `
 
-    if request.Status == "approved" {
+    if request.Status == "approved" && request.Type == "teach request" {
         _, err = s.db.ExecContext(
             ctx,
             role_relation_query,
             &request.ID,
-            "71dc50c1-1934-4da1-91a5-2fb73fadb39e",
+            "71dc50c1-1934-4da1-91a5-2fb73fadb39e", // fixed id of teacher role
         )
         if err != nil {
             return err

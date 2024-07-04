@@ -22,12 +22,19 @@ CREATE TABLE role_relations (
     "user_id" uuid REFERENCES users(id),
     "role_id" uuid REFERENCES roles(id),
     PRIMARY KEY ("user_id", "role_id")
-
 );
 
+CREATE TYPE request_type AS ENUM ('teach request', 'create subject request');
+CREATE TYPE request_status AS ENUM ('pending', 'approved', 'denied');
+
 CREATE TABLE requests (
-    "id" uuid PRIMARY KEY REFERENCES users(id),
-    "status" varchar
+  "id" uuid PRIMARY KEY REFERENCES users(id),
+  "status" request_status NOT NULL,
+  "type" request_type NOT NULL,
+  "subject_request_name" VARCHAR DEFAULT '',
+  "subject_request_type" VARCHAR DEFAULT '',
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE meetings (
@@ -40,6 +47,14 @@ CREATE TABLE meetings (
   "meeting_day" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE availability (
+    "user_id" uuid REFERENCES users(id),
+    "start_time" time NOT NULL,
+    "end_time" time NOT NULL,
+    "created_at" timestamptz NOT NULL DEFAULT (now()),
+    "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE subjects (
@@ -84,11 +99,14 @@ CREATE INDEX ON meetings ("student_id");
 CREATE INDEX ON bills ("meeting_id");
 
 -- +goose Down
-DROP TABLE IF EXISTS users             CASCADE;
-DROP TABLE IF EXISTS meetings          CASCADE;
-DROP TABLE IF EXISTS subjects          CASCADE;
-DROP TABLE IF EXISTS teachings         CASCADE;
-DROP TABLE IF EXISTS bills             CASCADE;
-DROP TABLE IF EXISTS requests          CASCADE;
-DROP TABLE IF EXISTS roles             CASCADE;
-DROP TABLE IF EXISTS role_relations    CASCADE;
+DROP TABLE IF EXISTS users          CASCADE;
+DROP TABLE IF EXISTS meetings       CASCADE;
+DROP TABLE IF EXISTS subjects       CASCADE;
+DROP TABLE IF EXISTS teachings      CASCADE;
+DROP TABLE IF EXISTS bills          CASCADE;
+DROP TABLE IF EXISTS requests       CASCADE;
+DROP TABLE IF EXISTS roles          CASCADE;
+DROP TABLE IF EXISTS role_relations CASCADE;
+DROP TABLE IF EXISTS availability   CASCADE;
+DROP TYPE  IF EXISTS request_type   CASCADE;
+DROP TYPE  IF EXISTS request_status CASCADE;
