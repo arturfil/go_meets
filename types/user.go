@@ -1,6 +1,10 @@
 package types
 
-import "github.com/golang-jwt/jwt/v4"
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+)
 
 type UserStore interface {
 	GetTeachers() ([]User, error)
@@ -19,26 +23,26 @@ type UsersAndRoles struct {
 }
 
 type UserReponse struct {
-	ID        string   `json:"id"`
-	Email     string   `json:"email"`
-	FirstName string   `json:"first_name,omitempty"`
-	LastName  string   `json:"last_name,omitempty"`
-	Password  string `json:"-"`
-	Roles     []string `json:"roles"`
-	CreatedAt string   `json:"created_at"`
-	UpdatedAt string   `json:"updated_at"`
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	Password  string    `json:"-"`
+	Roles     []string  `json:"roles"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type User struct {
-	ID        string `json:"id"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Password  string `json:"-"`
-	IsAdmin   string `json:"is_admin"`
-	IsTeacher string `json:"is_teacher"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	Password  string    `json:"-"`
+	IsAdmin   string    `json:"is_admin"`
+	IsTeacher string    `json:"is_teacher"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Register Payload Types here

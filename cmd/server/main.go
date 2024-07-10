@@ -7,16 +7,17 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/arturfil/meetings_app_server/db"
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/services/meetings"
 	"github.com/arturfil/meetings_app_server/services/requests"
 	"github.com/arturfil/meetings_app_server/services/subjects"
+	"github.com/arturfil/meetings_app_server/services/teachings"
 	"github.com/arturfil/meetings_app_server/services/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type AppServer struct {
@@ -70,6 +71,12 @@ func (app *AppServer) Serve() error {
     requestStore := requests.NewStore(app.db)
     requestHandler := requests.NewHandler(requestStore)
     requestHandler.RegisterRoutes(router)
+    
+    // teachings entity - in this particular entity I'm going
+    // to couple mulitple small entities that surround a common topic - teaching classes
+    teachingStore := teachings.NewStore(app.db)
+    teachingHandler := teachings.NewHandler(teachingStore)
+    teachingHandler.RegisterRoutes(router)
 
     srv := &http.Server{ Addr: fmt.Sprintf("%s", app.addr),
         Handler: router,

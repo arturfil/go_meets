@@ -5,8 +5,6 @@ CREATE TABLE users (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
-  "is_admin" boolean NOT NULL DEFAULT FALSE,
-  "is_teacher" boolean DEFAULT FALSE,
   "email" varchar UNIQUE NOT NULL,
   "password" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -67,11 +65,8 @@ CREATE TABLE subjects (
 
 CREATE TABLE teachings (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
-  "teacher_id" uuid NOT NULL,
+  "teacher_id" uuid REFERENCES users(id) NOT NULL,
   "subject_id" uuid NOT NULL,
-  "opening_time" timestamptz NOT NULL,
-  "closing_time" timestamptz NOT NULL,
-  "hourly_rate" uuid NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -97,6 +92,7 @@ ALTER TABLE "bills" ADD FOREIGN KEY ("meeting_id") REFERENCES "meetings" ("id");
 CREATE INDEX ON users ("email");
 CREATE INDEX ON meetings ("student_id");
 CREATE INDEX ON bills ("meeting_id");
+
 
 -- +goose Down
 DROP TABLE IF EXISTS users          CASCADE;

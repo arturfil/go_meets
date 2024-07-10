@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/arturfil/meetings_app_server/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -90,14 +91,17 @@ func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 
+    newId := uuid.New()
+
     query := `
-        INSERT INTO users (first_name, last_name, email, password)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO users (id, first_name, last_name, email, password)
+        VALUES ($1, $2, $3, $4, $5);
     ` 
 
-    _, err := s.db.QueryContext(
+     _, err := s.db.ExecContext(
         ctx,
         query,
+        newId,
         user.FirstName,
         user.LastName,
         user.Email,
@@ -107,6 +111,20 @@ func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
         return err
     }
 
+    role_query := `
+        INSERT INTO role_relations (user_id, role_id)
+        VALUES ($1, $2);
+    `
+
+    _, err = s.db.ExecContext(
+        ctx,
+        role_query,
+        newId,
+        "22b3f2ca-3e98-447f-a807-9609fa496ae9", // user role id,
+    )
+    if err != nil {
+        return err
+    }
 
     return nil
 }
@@ -116,8 +134,11 @@ func (s *Store) GetTeachers() ([]types.User, error) {
     defer cancel()
 
     query := `
-        SELECT id, email, first_name, last_name, is_teacher, is_admin, created_at, updated_at
-        FROM users u WHERE u.is_teacher = TRUE;
+        SELECT u.id, email, first_name, last_name, created_at, updated_at
+        FROM users u 
+        JOIN role_relations rr ON rr.user_id = u.id
+        JOIN roles r ON r.id = rr.role_id
+        WHERE r.description = 'teacher';
     `
     
     rows, err := s.db.QueryContext(ctx, query)
@@ -133,8 +154,6 @@ func (s *Store) GetTeachers() ([]types.User, error) {
             &teacher.Email,
             &teacher.FirstName,
             &teacher.LastName,
-            &teacher.IsTeacher,
-            &teacher.IsAdmin,
             &teacher.CreatedAt,
             &teacher.UpdatedAt,
 
