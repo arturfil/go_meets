@@ -21,26 +21,26 @@ import (
 )
 
 type AppServer struct {
-    addr string
-    db *sql.DB
+	addr string
+	db   *sql.DB
 }
 
 // NewAppServer - constructor for AppServer
 func NewAppServer(addr string, db *sql.DB) *AppServer {
-    return &AppServer{
-        addr: addr,
-        db: db,
-    }
+	return &AppServer{
+		addr: addr,
+		db:   db,
+	}
 }
 
-// Serve - will run the application and 
+// Serve - will run the application and
 // no error as long as it is running corectly
 func (app *AppServer) Serve() error {
-    helpers.MessageLogs.InfoLog.Println("API listenting on port", app.addr)
+	helpers.MessageLogs.InfoLog.Println("API listenting on port", app.addr)
 
-    router := chi.NewRouter()
+	router := chi.NewRouter()
 
-    router.Use(middleware.Recoverer)
+	router.Use(middleware.Recoverer)
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -50,58 +50,53 @@ func (app *AppServer) Serve() error {
 		MaxAge:           300,
 	}))
 
-    router.Mount("/api/", router)
+	router.Mount("/api/", router)
 
-    // user entity
-    userStore := user.NewStore(app.db)
-    userHandler := user.NewHandler(userStore)
-    userHandler.RegisterRoutes(router)
+	// user entity
+	userStore := user.NewStore(app.db)
+	userHandler := user.NewHandler(userStore)
+	userHandler.RegisterRoutes(router)
 
-    // meetings entity
-    meetingsStore := meetings.NewStore(app.db)
-    meetingsHandler := meetings.NewHandler(meetingsStore)
-    meetingsHandler.RegisterRoutes(router)
+	// meetings entity
+	meetingsStore := meetings.NewStore(app.db)
+	meetingsHandler := meetings.NewHandler(meetingsStore)
+	meetingsHandler.RegisterRoutes(router)
 
-    // subjects entity 
-    subjectsStore := subjects.NewStore(app.db)
-    subjectsHandler := subjects.NewHandler(subjectsStore)
-    subjectsHandler.RegisterRoutes(router)
+	// subjects entity
+	subjectsStore := subjects.NewStore(app.db)
+	subjectsHandler := subjects.NewHandler(subjectsStore)
+	subjectsHandler.RegisterRoutes(router)
 
-    // requests entity
-    requestStore := requests.NewStore(app.db)
-    requestHandler := requests.NewHandler(requestStore)
-    requestHandler.RegisterRoutes(router)
-    
-    // teachings entity - in this particular entity I'm going
-    // to couple mulitple small entities that surround a common topic - teaching classes
-    teachingStore := teachings.NewStore(app.db)
-    teachingHandler := teachings.NewHandler(teachingStore)
-    teachingHandler.RegisterRoutes(router)
+	// requests entity
+	requestStore := requests.NewStore(app.db)
+	requestHandler := requests.NewHandler(requestStore)
+	requestHandler.RegisterRoutes(router)
 
-    srv := &http.Server{ Addr: fmt.Sprintf("%s", app.addr),
-        Handler: router,
-    }
+	// teachings entity - in this particular entity I'm going
+	// to couple mulitple small entities that surround a common topic - teaching classes
+	teachingStore := teachings.NewStore(app.db)
+	teachingHandler := teachings.NewHandler(teachingStore)
+	teachingHandler.RegisterRoutes(router)
 
-    return srv.ListenAndServe()
+	srv := &http.Server{Addr: fmt.Sprintf("%s", app.addr),
+		Handler: router,
+	}
+
+	return srv.ListenAndServe()
 }
 
 // Main func
 func main() {
 
-    dsn := os.Getenv("DSN")
+	dsn := os.Getenv("DSN")
 
-    db, err := db.NewDatabase(dsn)
-    if err != nil {
-         log.Fatal("Cannot connect to database", err)
-    }
+	db, err := db.NewDatabase(dsn)
+	if err != nil {
+		log.Fatal("Cannot connect to database", err)
+	}
 
-    server := NewAppServer(":8080", db.Client)
-    if err := server.Serve(); err != nil {
-       log.Fatal(err) 
-    }
+	server := NewAppServer(":8080", db.Client)
+	if err := server.Serve(); err != nil {
+		log.Fatal(err)
+	}
 }
-
-
-
-
-

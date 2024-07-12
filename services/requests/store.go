@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/arturfil/meetings_app_server/types"
 )
@@ -82,12 +83,15 @@ func (s *Store) CreateRequest(request types.Request) error {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 
+    log.Println("request ", request)
+
     query := `
         INSERT INTO requests(
             id,
-            status
+            status,
+            type
         )
-        VALUES($1, $2);
+        VALUES($1, $2, $3);
     `
 
     _, err := s.db.ExecContext(
@@ -95,8 +99,10 @@ func (s *Store) CreateRequest(request types.Request) error {
         query,
         request.ID,
         request.Status,
+        request.Type,
     )
     if err != nil {
+        log.Println("error in query", err)
         return err
     }
 
@@ -194,7 +200,7 @@ func (s *Store) hasRole(id, roleAuth string) error {
     }
 
     if hasRole == false {
-       return errors.New("user is not have the right permission to exectute his process")
+       return errors.New("user does not have the right permission to exectute his process")
     }
 
     return nil
