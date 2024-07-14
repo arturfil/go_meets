@@ -3,6 +3,7 @@ package teachings
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/arturfil/meetings_app_server/types"
 )
@@ -81,15 +82,27 @@ func (s *Store) GetSchedule(userId string) (*types.Schedule, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
+
+    query_count := `
+        select count(*) from availability where user_id = $1;
+    `
+
+    var count int
+    row := s.db.QueryRowContext(ctx, query_count, userId);
+    err := row.Scan(&count)
+    
+    if count == 0 {
+        return &types.Schedule{}, errors.New("available times haven't been selected, please create new ones")
+    }
+
+    var schedule types.Schedule
+
     query := `
         select user_id, start_time, end_time, created_at, updated_at from availability 
         where user_id = $1
     `
-
-    var schedule types.Schedule
-
-    row := s.db.QueryRowContext( ctx, query, userId)
-    err := row.Scan(
+    row = s.db.QueryRowContext( ctx, query, userId)
+    err = row.Scan(
         &schedule.UserId,
         &schedule.StartTime,
         &schedule.EndTime,

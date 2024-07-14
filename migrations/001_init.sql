@@ -47,12 +47,17 @@ CREATE TABLE meetings (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+
+CREATE TYPE day_of_week AS ENUM ('monday', 'tuestday', 'wednesday', 'thursday', 'friday');
+
 CREATE TABLE availability (
     "user_id" uuid REFERENCES users(id),
     "start_time" time NOT NULL,
+    "day" varchar NOT NULL,
     "end_time" time NOT NULL,
     "created_at" timestamptz NOT NULL DEFAULT (now()),
-    "updated_at" timestamptz NOT NULL DEFAULT (now())
+    "updated_at" timestamptz NOT NULL DEFAULT (now()),
+    UNIQUE("user_id", "day")
 );
 
 CREATE TABLE subjects (
