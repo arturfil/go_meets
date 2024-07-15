@@ -82,37 +82,70 @@ func (s *Store) GetSchedule(userId string) (*types.Schedule, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
-
-    query_count := `
+	query_count := `
         select count(*) from availability where user_id = $1;
     `
 
-    var count int
-    row := s.db.QueryRowContext(ctx, query_count, userId);
-    err := row.Scan(&count)
-    
-    if count == 0 {
-        return &types.Schedule{}, errors.New("available times haven't been selected, please create new ones")
-    }
+	var count int
+	row := s.db.QueryRowContext(ctx, query_count, userId)
+	err := row.Scan(&count)
 
-    var schedule types.Schedule
+	if count == 0 {
+		return &types.Schedule{}, errors.New("available times haven't been selected, please create new ones")
+	}
 
-    query := `
+	var schedule types.Schedule
+
+	query := `
         select user_id, start_time, end_time, created_at, updated_at from availability 
         where user_id = $1
     `
-    row = s.db.QueryRowContext( ctx, query, userId)
-    err = row.Scan(
-        &schedule.UserId,
-        &schedule.StartTime,
-        &schedule.EndTime,
-        &schedule.CreatedAt,
-        &schedule.UpdatedAt,
+	row = s.db.QueryRowContext(ctx, query, userId)
+	err = row.Scan(
+		&schedule.UserId,
+		&schedule.StartTime,
+		&schedule.EndTime,
+		&schedule.CreatedAt,
+		&schedule.UpdatedAt,
+	)
+	if err != nil {
+		return &types.Schedule{}, err
+	}
+
+	return &schedule, nil
+
+}
+
+func (s *Store) CreateSchedule(schedule types.Schedule) error {
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
+
+	query := `
+        insert into availability (
+            user_id,
+            start_time,
+            end_time
+            day,
+            created_at,
+            updated_at,
+        )
+        values ($1, $2, $3, $4, $5, $6);
+    `
+
+    _, err := s.db.ExecContext(
+
+        ctx,
+        query,
+        schedule.UserId,
+        schedule.StartTime,
+        schedule.EndTime,
+        schedule.DayOfWeek,
+        schedule.CreatedAt,
+        schedule.UpdatedAt,
     )
     if err != nil {
-        return &types.Schedule{}, err
+        return err
     }
 
-    return &schedule, nil
-
+    return nil
 }

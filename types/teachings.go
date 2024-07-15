@@ -20,6 +20,7 @@ type Schedule struct {
 	UserId    string    `json:"user_id"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
+    DayOfWeek time.Time `json:"day"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
