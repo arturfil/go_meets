@@ -5,7 +5,9 @@ import "time"
 type TeachingsStore interface {
 	GetAllTeachings(userId string) ([]Teaching, error)
 	CreateTeaching(userId, subjectId string) error
-	GetSchedule(userId string) (*Schedule, error)
+	GetSchedules(userId string) ([]Schedule, error)
+	CreateSchedule(schedule Schedule) error
+	DeleteSchedule(userId string) error
 }
 
 type Teaching struct {
@@ -18,9 +20,9 @@ type Teaching struct {
 
 type Schedule struct {
 	UserId    string    `json:"user_id"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
-    DayOfWeek time.Time `json:"day"`
+	StartTime string    `json:"start_time"`
+	EndTime   string    `json:"end_time"`
+	Day       string    `json:"day"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -48,13 +48,13 @@ CREATE TABLE meetings (
 );
 
 
-CREATE TYPE day_of_week AS ENUM ('monday', 'tuestday', 'wednesday', 'thursday', 'friday');
+CREATE TYPE day_of_week AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday');
 
 CREATE TABLE availability (
     "user_id" uuid REFERENCES users(id),
     "start_time" time NOT NULL,
-    "day" varchar NOT NULL,
     "end_time" time NOT NULL,
+    "day" day_of_week NOT NULL,
     "created_at" timestamptz NOT NULL DEFAULT (now()),
     "updated_at" timestamptz NOT NULL DEFAULT (now()),
     UNIQUE("user_id", "day")
@@ -110,4 +110,5 @@ DROP TABLE IF EXISTS roles          CASCADE;
 DROP TABLE IF EXISTS role_relations CASCADE;
 DROP TABLE IF EXISTS availability   CASCADE;
 DROP TYPE  IF EXISTS request_type   CASCADE;
+DROP TYPE  IF EXISTS day_of_week    CASCADE;
 DROP TYPE  IF EXISTS request_status CASCADE;

@@ -78,7 +78,7 @@ func (s *Store) CreateTeaching(userId, subjectId string) error {
 	return nil
 }
 
-func (s *Store) GetSchedule(userId string) (*types.Schedule, error) {
+func (s *Store) GetSchedules(userId string) ([]types.Schedule, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
@@ -91,29 +91,39 @@ func (s *Store) GetSchedule(userId string) (*types.Schedule, error) {
 	err := row.Scan(&count)
 
 	if count == 0 {
-		return &types.Schedule{}, errors.New("available times haven't been selected, please create new ones")
+		return nil, errors.New("available times haven't been selected or user doesn't exist, please create new ones if possible")
 	}
-
-	var schedule types.Schedule
 
 	query := `
-        select user_id, start_time, end_time, created_at, updated_at from availability 
-        where user_id = $1
+        SELECT * FROM availability
+        WHERE user_id = $1;
     `
-	row = s.db.QueryRowContext(ctx, query, userId)
-	err = row.Scan(
-		&schedule.UserId,
-		&schedule.StartTime,
-		&schedule.EndTime,
-		&schedule.CreatedAt,
-		&schedule.UpdatedAt,
-	)
+
+	rows, err := s.db.QueryContext(ctx, query, userId)
 	if err != nil {
-		return &types.Schedule{}, err
+		return nil, err
 	}
 
-	return &schedule, nil
+	var schedules []types.Schedule
 
+	for rows.Next() {
+		var schedule types.Schedule
+		err := rows.Scan(
+			&schedule.UserId,
+			&schedule.StartTime,
+			&schedule.EndTime,
+			&schedule.Day,
+			&schedule.CreatedAt,
+			&schedule.UpdatedAt,
+		)
+        if err != nil {
+            return nil, err
+        }
+
+		schedules = append(schedules, schedule)
+	}
+
+	return schedules, nil
 }
 
 func (s *Store) CreateSchedule(schedule types.Schedule) error {
@@ -124,28 +134,39 @@ func (s *Store) CreateSchedule(schedule types.Schedule) error {
         insert into availability (
             user_id,
             start_time,
-            end_time
-            day,
-            created_at,
-            updated_at,
+            end_time,
+            day
         )
-        values ($1, $2, $3, $4, $5, $6);
+        values ($1, $2, $3, $4);
     `
 
-    _, err := s.db.ExecContext(
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		schedule.UserId,
+		schedule.StartTime,
+		schedule.EndTime,
+		schedule.Day,
+	)
+	if err != nil {
+		return err
+	}
 
-        ctx,
-        query,
-        schedule.UserId,
-        schedule.StartTime,
-        schedule.EndTime,
-        schedule.DayOfWeek,
-        schedule.CreatedAt,
-        schedule.UpdatedAt,
-    )
-    if err != nil {
-        return err
-    }
+	return nil
+}
 
-    return nil
+func (s *Store) DeleteSchedule(userId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
+
+	query := `
+        delete from availability where user_id = $1;
+    `
+
+	_, err := s.db.ExecContext(ctx, query, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
