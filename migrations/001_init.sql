@@ -47,7 +47,6 @@ CREATE TABLE meetings (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-
 CREATE TYPE day_of_week AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday');
 
 CREATE TABLE availability (
@@ -60,10 +59,19 @@ CREATE TABLE availability (
     UNIQUE("user_id", "day")
 );
 
+CREATE TABLE subject_categories (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "name" varchar NOT NULL,
+  "description" varchar,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
 CREATE TABLE subjects (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "name" varchar NOT NULL,
   "description" varchar NOT NULL,
+  "category_id" uuid REFERENCES subject_categories(id),
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -97,18 +105,19 @@ ALTER TABLE "bills" ADD FOREIGN KEY ("meeting_id") REFERENCES "meetings" ("id");
 CREATE INDEX ON users ("email");
 CREATE INDEX ON meetings ("student_id");
 CREATE INDEX ON bills ("meeting_id");
-
+CREATE INDEX ON subjects ("category_id");
 
 -- +goose Down
-DROP TABLE IF EXISTS users          CASCADE;
-DROP TABLE IF EXISTS meetings       CASCADE;
-DROP TABLE IF EXISTS subjects       CASCADE;
-DROP TABLE IF EXISTS teachings      CASCADE;
-DROP TABLE IF EXISTS bills          CASCADE;
-DROP TABLE IF EXISTS requests       CASCADE;
-DROP TABLE IF EXISTS roles          CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS meetings CASCADE;
+DROP TABLE IF EXISTS subjects CASCADE;
+DROP TABLE IF EXISTS subject_categories CASCADE;
+DROP TABLE IF EXISTS teachings CASCADE;
+DROP TABLE IF EXISTS bills CASCADE;
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS role_relations CASCADE;
-DROP TABLE IF EXISTS availability   CASCADE;
-DROP TYPE  IF EXISTS request_type   CASCADE;
-DROP TYPE  IF EXISTS day_of_week    CASCADE;
-DROP TYPE  IF EXISTS request_status CASCADE;
+DROP TABLE IF EXISTS availability CASCADE;
+DROP TYPE IF EXISTS request_type CASCADE;
+DROP TYPE IF EXISTS day_of_week CASCADE;
+DROP TYPE IF EXISTS request_status CASCADE;

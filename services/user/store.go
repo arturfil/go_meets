@@ -87,7 +87,7 @@ func (s *Store) GetUserById(id string) (*types.UserReponse, error) {
     return &user, nil
 }
 
-func (s *Store) CreateUser(user types.RegisterUserPayload) (error) {
+func (s *Store) CreateUser(user types.RegisterUserPayload) error {
     ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
     defer cancel()
 

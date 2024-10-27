@@ -18,10 +18,17 @@ func NewHandler(store types.TeachingsStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
-	router.Get("/v1/teachings/{id}", h.getAllTeachings)
-    router.Get("/v1/schedules/{id}", h.getAvailableTimes)
-	router.Post("/v1/create/schedule", h.createSchedule)
-	router.Delete("/v1/schedule/{id}", h.deleteSchedule)
+
+    router.Route("/v1/teachings", func(router chi.Router) {
+        router.Get("/{id}", h.getAllTeachings)
+        router.Post("/create", h.createTeaching)
+    })
+
+    router.Route("/v1/schedules", func(router chi.Router) {
+        router.Get("/{id}", h.getAvailableTimes)
+        router.Post("/schedule", h.createSchedule)
+        router.Delete("/{id}", h.deleteSchedule)
+    })
 }
 
 func (h *Handler) getAllTeachings(w http.ResponseWriter, r *http.Request) {
@@ -36,8 +43,27 @@ func (h *Handler) getAllTeachings(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, teachings)
 }
 
+func (h *Handler) createTeaching(w http.ResponseWriter, r *http.Request) {
+    var teaching types.TeachingSubmission
+
+    err := json.NewDecoder(r.Body).Decode(&teaching)
+    if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+        return
+    }
+
+    err = h.store.CreateTeaching(teaching)
+    if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+        return
+    }
+
+	helpers.WriteJSON(w, http.StatusOK, "Successfully created a schedule for a day")
+}
+
 func (h *Handler) getAvailableTimes(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+
 
 	times, err := h.store.GetSchedules(id)
 	if err != nil {

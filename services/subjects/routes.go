@@ -9,27 +9,67 @@ import (
 )
 
 type Handler struct {
-    store types.SubjectStore
+	store types.SubjectStore
 }
 
 func NewHandler(store types.SubjectStore) *Handler {
-    return &Handler{
-        store: store,
-    }
+	return &Handler{
+		store: store,
+	}
 }
 
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
-    router.Route("/v1/subjects", func(router chi.Router) {
-        router.Get("/", h.getAllSubjects)
+	router.Route("/v1/subjects", func(router chi.Router) {
+		router.Get("/", h.getAllSubjects)
+		router.Get("/bycategory/{categoryId}", h.getAllSubjectsByCategory)
+		router.Get("/{subjectId}", h.getSubjectById)
     })
+
+	router.Route("/v1/categories", func(router chi.Router) {
+		router.Get("/", h.getSubjectCategories)
+	})
 }
 
 func (h *Handler) getAllSubjects(w http.ResponseWriter, r *http.Request) {
-    subjects, err := h.store.GetAllSubjects()
+	subjects, err := h.store.GetAllSubjects()
+	if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, subjects)
+}
+
+func (h *Handler) getAllSubjectsByCategory(w http.ResponseWriter, r *http.Request) {
+	categoryId := chi.URLParam(r, "categoryId")
+
+	subjects, err := h.store.GetAllSubjectsByCategory(categoryId)
+	if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, subjects)
+}
+
+func (h *Handler) getSubjectById(w http.ResponseWriter, r *http.Request) {
+    subjectId := chi.URLParam(r, "subjectId")
+
+    subject, err := h.store.GetSubjectById(subjectId)
     if err != nil {
-        helpers.WriteERROR(w, http.StatusInternalServerError, err)
-        return 
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+		return
     }
 
-    helpers.WriteJSON(w, http.StatusOK, subjects)
+	helpers.WriteJSON(w, http.StatusOK, subject)
+}
+
+func (h *Handler) getSubjectCategories(w http.ResponseWriter, r *http.Request) {
+	categories, err := h.store.GetSubjectCategories()
+	if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, categories)
 }

@@ -29,10 +29,20 @@ func NewHandler(store types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
 	router.Get("/v1/healthcheck", h.healthCheck)
-	router.Get("/v1/teachers", h.getAllTeachers)
-	router.Post("/v1/signup", h.signupUser)
-	router.Post("/v1/login", h.loginUser)
-    router.Get("/v1/users/bytoken", h.getUserByToken)
+
+    router.Route("/v1/teachers", func(router chi.Router) {
+        router.Get("/", h.getAllTeachers)
+    })
+
+    router.Route("/v1/auth", func(router chi.Router) {
+        router.Post("/signup", h.signupUser)
+        router.Post("/login", h.loginUser)
+    })
+
+    router.Route("/v1/users/", func(router chi.Router) {
+        router.Get("/bytoken", h.getUserByToken)
+    })
+
 }
 
 func (h *Handler) healthCheck(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +118,7 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	// check if the passwords encrypted match
 	if !passwordMatches(user.Password, body.Password) {
 		helpers.ErrorJSON(w, fmt.Errorf("Invalid credentials"), http.StatusBadRequest)
+        return
 	}
 
 	// get the secret from the env & generate JWT
@@ -150,6 +161,7 @@ func (h *Handler) getUserByToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+    helpers.ErrorJSON(w, fmt.Errorf("Couldn't generate the token %v", err))
 }
 
 func (h *Handler) getAllTeachers(w http.ResponseWriter, r *http.Request) {

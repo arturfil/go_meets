@@ -3,3 +3,4 @@ db/cached-db-data
 .air.toml
 tmp/
 .github/
+.DS_Store

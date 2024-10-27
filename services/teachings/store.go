@@ -51,16 +51,14 @@ func (s *Store) GetAllTeachings(userId string) ([]types.Teaching, error) {
 	return teachings, nil
 }
 
-func (s *Store) CreateTeaching(userId, subjectId string) error {
+func (s *Store) CreateTeaching(teaching types.TeachingSubmission) error {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
 	query := `
         INSERT INTO teachings (
            teacher_id,
-           subject_id,
-           created_at,
-           updated_at
+           subject_id
         )
         VALUES ($1, $2)
     `
@@ -68,8 +66,8 @@ func (s *Store) CreateTeaching(userId, subjectId string) error {
 	_, err := s.db.ExecContext(
 		ctx,
 		query,
-		userId,
-		subjectId,
+		teaching.TeacherID,
+		teaching.SubjectID,
 	)
 	if err != nil {
 		return err
