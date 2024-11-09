@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	 "time"
+	"time"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/arturfil/meetings_app_server/helpers"
 	"github.com/arturfil/meetings_app_server/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
+	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,18 +30,20 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
 	router.Get("/v1/healthcheck", h.healthCheck)
 
-    router.Route("/v1/teachers", func(router chi.Router) {
-        router.Get("/", h.getAllTeachers)
-    })
+	router.Route("/v1/teachers", func(router chi.Router) {
+		router.Get("/", h.getAllTeachers)
+		router.Get("/search", h.searchTeachers)
+	})
 
-    router.Route("/v1/auth", func(router chi.Router) {
-        router.Post("/signup", h.signupUser)
-        router.Post("/login", h.loginUser)
-    })
+	router.Route("/v1/auth", func(router chi.Router) {
+		router.Post("/signup", h.signupUser)
+		router.Post("/login", h.loginUser)
+	})
 
-    router.Route("/v1/users/", func(router chi.Router) {
-        router.Get("/bytoken", h.getUserByToken)
-    })
+	router.Route("/v1/users", func(router chi.Router) {
+        router.Get("/", h.getAllUsers)
+		router.Get("/bytoken", h.getUserByToken)
+	})
 
 }
 
@@ -111,14 +113,14 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.store.GetUserByEmail(body.Email)
 	if err != nil {
 		helpers.ErrorJSON(w, fmt.Errorf("Invalid credentials, please try again"), http.StatusInternalServerError)
-        log.Println("User does not exist", err)
+		log.Println("User does not exist", err)
 		return
 	}
 
 	// check if the passwords encrypted match
 	if !passwordMatches(user.Password, body.Password) {
 		helpers.ErrorJSON(w, fmt.Errorf("Invalid credentials"), http.StatusBadRequest)
-        return
+		return
 	}
 
 	// get the secret from the env & generate JWT
@@ -132,17 +134,27 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
+func (h *Handler) getAllUsers(w http.ResponseWriter, r *http.Request) {
+    users, err := h.store.GetAllUsers()  
+    if err != nil {
+        helpers.ErrorJSON(w, fmt.Errorf("Couldn't get the teachers", err))
+        return
+    }
+
+    helpers.WriteJSON(w, http.StatusOK, users)
+}
+
 // getUserByToken - you will get the user by when providing a jwt token
 func (h *Handler) getUserByToken(w http.ResponseWriter, r *http.Request) {
 	var myKey = []byte(os.Getenv("JWT_SECRET"))
 
 	claims := &types.TokenClaim{}
 
-    tokenString := strings.Split(r.Header["Authorization"][0], " ")[1]
+	tokenString := strings.Split(r.Header["Authorization"][0], " ")[1]
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		 return nil, fmt.Errorf("there was an error")
+			return nil, fmt.Errorf("there was an error")
 		}
 		return myKey, nil
 	})
@@ -161,7 +173,7 @@ func (h *Handler) getUserByToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    helpers.ErrorJSON(w, fmt.Errorf("Couldn't generate the token %v", err))
+	helpers.ErrorJSON(w, fmt.Errorf("Couldn't generate the token %v", err))
 }
 
 func (h *Handler) getAllTeachers(w http.ResponseWriter, r *http.Request) {
@@ -169,6 +181,17 @@ func (h *Handler) getAllTeachers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.ErrorJSON(w, fmt.Errorf("Couldn't get the teachers %v", err))
 		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, teachers)
+}
+
+func (h *Handler) searchTeachers(w http.ResponseWriter, r *http.Request) {
+	searchWord := r.URL.Query().Get("queryWord")
+
+	teachers, err := h.store.SearchTeachers(searchWord)
+	if err != nil {
+		helpers.ErrorJSON(w, fmt.Errorf("Something went wrong", err))
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, teachers)
@@ -184,13 +207,13 @@ func createJWT(secret []byte, id string) (string, error) {
 
 	expiration := time.Now().Add(time.Hour * 24).Unix() // add in unix time
 
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, types.TokenClaim{
-        RegisteredClaims: jwt.RegisteredClaims{},
-        Sub: fmt.Sprint(id),
-        Aud: types.Domain,
-        Iss: types.Domain,
-        Exp: fmt.Sprint(expiration),
-    })
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, types.TokenClaim{
+		RegisteredClaims: jwt.RegisteredClaims{},
+		Sub:              fmt.Sprint(id),
+		Aud:              types.Domain,
+		Iss:              types.Domain,
+		Exp:              fmt.Sprint(expiration),
+	})
 
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {

@@ -1,6 +1,45 @@
 version: "3"
 
 services:
+
+  # client_dev:
+  #   container_name: nextjs_app_dev
+  #   build:
+  #     context: ../meetings_app_client  # Path to client directory from server
+  #     dockerfile: client.dockerfile
+  #     target: deps # Uses only the dependencies stage for development
+  #   command: npm run dev
+  #   ports:
+  #     - "3000:3000"
+  #   env_file: 
+  #   - ../meetings_app_client/.env
+  #   environment:
+  #     NODE_ENV: development
+  #     NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+  #   volumes:
+  #     - ../meetings_app_client:/app # Mounts the code into the container
+  #     - node_modules:/node_modules # Anonymous volume for node_modules
+  #     - next-cache:/.next # Anonymous volume for .next
+  #   networks:
+  #     - tutoring-network
+  #   depends_on:
+  #     - api
+
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: api.dockerfile
+  #   container_name: tutoring-api
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     DSN: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable"
+  #     PORT: ${PORT}
+  #   depends_on:
+  #     postgres_db:
+  #       condition: service_healthy
+  #   networks:
+  #     - tutoring-network
   
   postgres_db:
     container_name: ${DOCKER_CONTAINER_DB_NAME}
@@ -15,6 +54,25 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    # networks:
+    #   - tutoring-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     volumes:
       - ./db/cached-db-data/postgres/:/var/lib/postgresql/data/
+
+# volumes:
+#   db:
+#     driver: local
+#   node_modules:
+#   next-cache:
+
+# networks:
+#   tutoring-network:
+#     driver: bridge
+
 

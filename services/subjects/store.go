@@ -3,6 +3,7 @@ package subjects
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/arturfil/meetings_app_server/types"
 )
@@ -51,6 +52,61 @@ func (s *Store) GetAllSubjects() ([]types.SubjectResponse, error) {
 
 	return subjects, nil
 }
+
+func (s *Store) GetUserSubjects(userId string) ([]types.SubjectResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
+
+    query := `
+        SELECT s.id, s.name, c.name, s.description, s.created_at, s.updated_at FROM teachings t
+        JOIN users u ON u.id = t.teacher_id
+        LEFT JOIN subjects s ON t.subject_id = s.id
+        JOIN subject_categories c ON c.id = s.category_id
+        WHERE u.id = $1;
+    `
+
+    rows, err := s.db.QueryContext(ctx, query, userId)
+    if err != nil {
+        return nil, err
+    }
+
+    var subjects []types.SubjectResponse
+
+    for rows.Next() {
+        var subject types.SubjectResponse
+        err := rows.Scan(
+            &subject.ID,
+            &subject.Name,
+            &subject.Category,
+            &subject.Description,
+			&subject.CreatedAt,
+			&subject.UpdatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+
+        fmt.Println("subject -> ", subject)
+
+        subjects = append(subjects, subject)
+    }
+
+    return subjects, nil
+}
+
+func (s *Store) SearchSubject(queryWord string) ([]types.SubjectResponse, error) {
+	// ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	// defer cancel()
+
+    // query := `asdfasdf`
+
+    // rows, err := s.db.QueryContext(ctx, query, queryWord)
+    // if err != nil {
+    //     return nil, err
+    // }
+
+    return nil, nil 
+} 
 
 func (s *Store) GetAllSubjectsByCategory(categoryId string) ([]types.SubjectResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)

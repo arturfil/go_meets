@@ -5,6 +5,8 @@ import "time"
 type SubjectStore interface {
 	GetAllSubjects() ([]SubjectResponse, error)
 	GetSubjectCategories() ([]SubjectCategory, error)
+    SearchSubject(queryWord string) ([]SubjectResponse, error)
+    GetUserSubjects(userId string) ([]SubjectResponse, error)
 	GetAllSubjectsByCategory(categoryId string) ([]SubjectResponse, error)
 	GetSubjectById(id string) (Subject, error)
 }

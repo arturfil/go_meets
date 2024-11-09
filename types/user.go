@@ -7,7 +7,9 @@ import (
 )
 
 type UserStore interface {
+    GetAllUsers() ([]UserReponse, error)
 	GetTeachers() ([]User, error)
+    SearchTeachers(searchQuery string) ([]User, error)
 	GetUserByEmail(email string) (*UserReponse, error)
 	GetUserById(id string) (*UserReponse, error)
 	CreateUser(user RegisterUserPayload) error
