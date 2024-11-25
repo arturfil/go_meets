@@ -53,22 +53,26 @@ func (s *Store) GetAllSubjects() ([]types.SubjectResponse, error) {
 	return subjects, nil
 }
 
-func (s *Store) GetUserSubjects(userId string) ([]types.SubjectResponse, error) {
+func (s *Store) SearchSubject(queryWord string) ([]types.SubjectResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
-    query := `
-        SELECT s.id, s.name, c.name, s.description, s.created_at, s.updated_at FROM teachings t
-        JOIN users u ON u.id = t.teacher_id
-        LEFT JOIN subjects s ON t.subject_id = s.id
+	query := `
+    SELECT s.id, s.name, c.name, s.description, s.created_at, s.updated_at FROM subjects s
         JOIN subject_categories c ON c.id = s.category_id
-        WHERE u.id = $1;
+        WHERE (
+            LOWER(s.name) LIKE LOWER($1) OR
+            LOWER(c.name) LIKE LOWER($1) OR
+            LOWER(s.description) LIKE LOWER($1)
+        );
     `
 
-    rows, err := s.db.QueryContext(ctx, query, userId)
-    if err != nil {
-        return nil, err
-    }
+    searchPattern := fmt.Sprintf("%%%s%%", queryWord)
+
+	rows, err := s.db.QueryContext(ctx, query, searchPattern)
+	if err != nil {
+	    return nil, err
+	}
 
     var subjects []types.SubjectResponse
 
@@ -79,34 +83,17 @@ func (s *Store) GetUserSubjects(userId string) ([]types.SubjectResponse, error) 
             &subject.Name,
             &subject.Category,
             &subject.Description,
-			&subject.CreatedAt,
-			&subject.UpdatedAt,
+            &subject.CreatedAt,
+            &subject.UpdatedAt,
         )
         if err != nil {
             return nil, err
         }
-
-        fmt.Println("subject -> ", subject)
-
         subjects = append(subjects, subject)
     }
 
-    return subjects, nil
+	return subjects, nil
 }
-
-func (s *Store) SearchSubject(queryWord string) ([]types.SubjectResponse, error) {
-	// ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
-	// defer cancel()
-
-    // query := `asdfasdf`
-
-    // rows, err := s.db.QueryContext(ctx, query, queryWord)
-    // if err != nil {
-    //     return nil, err
-    // }
-
-    return nil, nil 
-} 
 
 func (s *Store) GetAllSubjectsByCategory(categoryId string) ([]types.SubjectResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
@@ -164,11 +151,11 @@ func (s *Store) GetSubjectById(id string) (types.Subject, error) {
 		&subject.CreatedAt,
 		&subject.UpdatedAt,
 	)
-    if err != nil {
-        return types.Subject{}, err
-    }
+	if err != nil {
+		return types.Subject{}, err
+	}
 
-    return subject, nil
+	return subject, nil
 }
 
 func (s *Store) GetSubjectCategories() ([]types.SubjectCategory, error) {

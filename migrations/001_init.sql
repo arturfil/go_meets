@@ -17,9 +17,9 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE role_relations (
-    "user_id" uuid REFERENCES users(id),
-    "role_id" uuid REFERENCES roles(id),
-    PRIMARY KEY ("user_id", "role_id")
+  "user_id" uuid REFERENCES users(id),
+  "role_id" uuid REFERENCES roles(id),
+  PRIMARY KEY ("user_id", "role_id")
 );
 
 CREATE TYPE request_type AS ENUM ('teach request', 'create subject request');
@@ -49,14 +49,14 @@ CREATE TABLE meetings (
 
 CREATE TYPE day_of_week AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday');
 
-CREATE TABLE availability (
-    "user_id" uuid REFERENCES users(id),
-    "start_time" time NOT NULL,
-    "end_time" time NOT NULL,
-    "day" day_of_week NOT NULL,
-    "created_at" timestamptz NOT NULL DEFAULT (now()),
-    "updated_at" timestamptz NOT NULL DEFAULT (now()),
-    UNIQUE("user_id", "day")
+CREATE TABLE schedules (
+  "user_id" uuid REFERENCES users(id),
+  "start_time" time NOT NULL,
+  "end_time" time NOT NULL,
+  "day" day_of_week NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  UNIQUE("user_id", "day")
 );
 
 CREATE TABLE subject_categories (
@@ -117,7 +117,7 @@ DROP TABLE IF EXISTS bills CASCADE;
 DROP TABLE IF EXISTS requests CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS role_relations CASCADE;
-DROP TABLE IF EXISTS availability CASCADE;
+DROP TABLE IF EXISTS schedules CASCADE;
 DROP TYPE IF EXISTS request_type CASCADE;
 DROP TYPE IF EXISTS day_of_week CASCADE;
 DROP TYPE IF EXISTS request_status CASCADE;

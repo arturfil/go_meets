@@ -21,9 +21,9 @@ func NewHandler(store types.SubjectStore) *Handler {
 func (h *Handler) RegisterRoutes(router *chi.Mux) {
 	router.Route("/v1/subjects", func(router chi.Router) {
 		router.Get("/", h.getAllSubjects)
-		router.Get("/{userId}", h.getUserSubjects)
 		router.Get("/bycategory/{categoryId}", h.getAllSubjectsByCategory)
 		router.Get("/subject/{subjectId}", h.getSubjectById)
+        router.Get("/search", h.searchSubject)
 	})
 
 	router.Route("/v1/categories", func(router chi.Router) {
@@ -51,18 +51,6 @@ func (h *Handler) searchSubject(w http.ResponseWriter, r *http.Request) {
 	}
 
     helpers.WriteJSON(w, http.StatusOK, subjects)
-}
-
-func (h *Handler) getUserSubjects(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "userId")
-
-	userSubjects, err := h.store.GetUserSubjects(userId)
-	if err != nil {
-		helpers.WriteERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	helpers.WriteJSON(w, http.StatusOK, userSubjects)
 }
 
 func (h *Handler) getAllSubjectsByCategory(w http.ResponseWriter, r *http.Request) {

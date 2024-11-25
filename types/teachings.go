@@ -3,8 +3,9 @@ package types
 import "time"
 
 type TeachingsStore interface {
-	GetAllTeachings(userId string) ([]Teaching, error)
+	GetAllTeachings(userId string) ([]SubjectResponse, error)
 	CreateTeaching(teaching TeachingSubmission) error
+    DeleteTeaching(teachingId string) error
 	GetSchedules(userId string) ([]Schedule, error)
 	CreateSchedule(schedule Schedule) error
 	DeleteSchedule(userId string) error

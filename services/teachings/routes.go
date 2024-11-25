@@ -22,10 +22,11 @@ func (h *Handler) RegisterRoutes(router *chi.Mux) {
     router.Route("/v1/teachings", func(router chi.Router) {
         router.Get("/{id}", h.getAllTeachings)
         router.Post("/create", h.createTeaching)
+        router.Delete("/delete/{teachingId}", h.deleteTeaching)
     })
 
     router.Route("/v1/schedules", func(router chi.Router) {
-        router.Get("/{id}", h.getAvailableTimes)
+        router.Get("/{id}", h.getUsersSchedule)
         router.Post("/schedule", h.createSchedule)
         router.Delete("/{id}", h.deleteSchedule)
     })
@@ -61,7 +62,19 @@ func (h *Handler) createTeaching(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, "Successfully created a schedule for a day")
 }
 
-func (h *Handler) getAvailableTimes(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) deleteTeaching(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "teachingId")
+
+    err := h.store.DeleteTeaching(id)
+    if err != nil {
+		helpers.WriteERROR(w, http.StatusInternalServerError, err)
+        return
+    }
+
+	helpers.WriteJSON(w, http.StatusOK, "Successfully deleted the teaching")
+}
+
+func (h *Handler) getUsersSchedule(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 
@@ -89,7 +102,7 @@ func (h *Handler) createSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, http.StatusNoContent, "Successfully created a schedule for a day")
+	helpers.WriteJSON(w, http.StatusOK, "Successfully created a schedule for a day")
 }
 
 func (h *Handler) deleteSchedule(w http.ResponseWriter, r *http.Request) {

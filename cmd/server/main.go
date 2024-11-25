@@ -91,7 +91,7 @@ func (app *AppServer) Serve() error {
 // Main func
 func main() {
 
-	dsn := os.Getenv("DSN")
+	dsn := os.Getenv("TEST_DSN")
     port := os.Getenv("PORT")
 
 	db, err := db.NewDatabase(dsn)

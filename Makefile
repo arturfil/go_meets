@@ -23,8 +23,14 @@ stop:
 	@-pkill -SIGTERM -f "./${BINARY}"
 	@echo "server stopped..."
 
+test.up:
+	docker compose up -d test_db
+
 test.unittests:
 	go test -v --tags=unittests ./...
+
+test.integration:
+	go test -v ./integration_tests/...
 
 db.status:
 	@GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=$(DSN) goose -dir=$(MIGRATIONS_PATH) status

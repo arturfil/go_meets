@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/arturfil/meetings_app_server/types"
 )
@@ -16,13 +17,16 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db}
 }
 
-func (s *Store) GetAllTeachings(userId string) ([]types.Teaching, error) {
+func (s *Store) GetAllTeachings(userId string) ([]types.SubjectResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
 	query := `
-        SELECT id, teacher_id, subject_id, created_at, updated_at FROM teachings
-        WHERE teacher_id = $1
+        SELECT t.id, s.name, c.name, s.description, s.created_at, s.updated_at FROM teachings t
+        JOIN users u ON u.id = t.teacher_id
+        LEFT JOIN subjects s ON t.subject_id = s.id
+        JOIN subject_categories c ON c.id = s.category_id
+        WHERE u.id = $1;
     `
 
 	rows, err := s.db.QueryContext(ctx, query, userId)
@@ -30,25 +34,26 @@ func (s *Store) GetAllTeachings(userId string) ([]types.Teaching, error) {
 		return nil, err
 	}
 
-	var teachings []types.Teaching
+	var subjects []types.SubjectResponse
 
 	for rows.Next() {
-		var teaching types.Teaching
+		var subject types.SubjectResponse
 		err := rows.Scan(
-			&teaching.ID,
-			&teaching.TeacherId,
-			&teaching.SubjectId,
-			&teaching.CreatedAt,
-			&teaching.UpdatedAt,
+			&subject.ID,
+			&subject.Name,
+			&subject.Category,
+			&subject.Description,
+			&subject.CreatedAt,
+			&subject.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		teachings = append(teachings, teaching)
+		subjects = append(subjects, subject)
 	}
 
-	return teachings, nil
+	return subjects, nil
 }
 
 func (s *Store) CreateTeaching(teaching types.TeachingSubmission) error {
@@ -76,12 +81,29 @@ func (s *Store) CreateTeaching(teaching types.TeachingSubmission) error {
 	return nil
 }
 
+func (s *Store) DeleteTeaching(teachingId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
+
+    query := `
+        DELETE FROM teachings WHERE id = $1;
+    `
+
+    res, err := s.db.ExecContext(ctx, query, teachingId)
+    if err != nil {
+        return err
+    }
+    
+    fmt.Println("result", res)
+    return nil
+}
+
 func (s *Store) GetSchedules(userId string) ([]types.Schedule, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
 	query_count := `
-        select count(*) from availability where user_id = $1;
+        SELECT count(*) FROM schedules WHERE user_id = $1;
     `
 
 	var count int
@@ -93,7 +115,7 @@ func (s *Store) GetSchedules(userId string) ([]types.Schedule, error) {
 	}
 
 	query := `
-        SELECT * FROM availability
+        SELECT * FROM schedules
         WHERE user_id = $1;
     `
 
@@ -129,7 +151,7 @@ func (s *Store) CreateSchedule(schedule types.Schedule) error {
 	defer cancel()
 
 	query := `
-        insert into availability (
+        insert into schedules (
             user_id,
             start_time,
             end_time,
@@ -158,7 +180,7 @@ func (s *Store) DeleteSchedule(userId string) error {
 	defer cancel()
 
 	query := `
-        delete from availability where user_id = $1;
+        DELETE FROM schedules WHERE user_id = $1;
     `
 
 	_, err := s.db.ExecContext(ctx, query, userId)
