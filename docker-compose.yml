@@ -45,7 +45,7 @@ services:
     container_name: ${DOCKER_TEST_CONTAINER}
     image: 'postgres:14.2'
     ports:
-      - "5432:5432"
+      - "5433:5432"
     restart: no
     deploy:
       mode: replicated
