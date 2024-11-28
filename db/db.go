@@ -13,7 +13,7 @@ import (
 )
 
 type DB struct {
-    Client *sql.DB
+	Client *sql.DB
 }
 
 const maxOpenDbConn = 10
@@ -22,33 +22,33 @@ const maxDbLifeTime = 5 * time.Minute
 
 // NewDatabase - New db connection with a particular model
 func NewDatabase(dsn string) (*DB, error) {
-    dbConn := &DB{}
+	dbConn := &DB{}
 
-    db, err := sql.Open("pgx", dsn)
-    if err != nil {
-        return nil, err
-    }
-    db.SetMaxOpenConns(maxOpenDbConn)
-    db.SetMaxIdleConns(maxIdleDbConn)
-    db.SetConnMaxLifetime(maxDbLifeTime)
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		return nil, err
+	}
+	db.SetMaxOpenConns(maxOpenDbConn)
+	db.SetMaxIdleConns(maxIdleDbConn)
+	db.SetConnMaxLifetime(maxDbLifeTime)
 
-    err = checkDB(db)
-    if err != nil {
-        log.Fatal(err)
-    }
+	err = checkDB(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    dbConn.Client = db
+	dbConn.Client = db
 
-    return dbConn, nil
+	return dbConn, nil
 }
 
 // checkDB - will check db connection
 func checkDB(d *sql.DB) error {
-    err := d.Ping()
-    if err != nil {
-        fmt.Println("Error", err)
-        return err
-    }
-    fmt.Println("*** Pinged database successfully ***")
-    return nil
+	err := d.Ping()
+	if err != nil {
+		fmt.Println("Error", err)
+		return err
+	}
+	fmt.Println("*** Pinged database successfully ***")
+	return nil
 }

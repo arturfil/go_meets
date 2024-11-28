@@ -67,30 +67,30 @@ func (s *Store) SearchSubject(queryWord string) ([]types.SubjectResponse, error)
         );
     `
 
-    searchPattern := fmt.Sprintf("%%%s%%", queryWord)
+	searchPattern := fmt.Sprintf("%%%s%%", queryWord)
 
 	rows, err := s.db.QueryContext(ctx, query, searchPattern)
 	if err != nil {
-	    return nil, err
+		return nil, err
 	}
 
-    var subjects []types.SubjectResponse
+	var subjects []types.SubjectResponse
 
-    for rows.Next() {
-        var subject types.SubjectResponse
-        err := rows.Scan(
-            &subject.ID,
-            &subject.Name,
-            &subject.Category,
-            &subject.Description,
-            &subject.CreatedAt,
-            &subject.UpdatedAt,
-        )
-        if err != nil {
-            return nil, err
-        }
-        subjects = append(subjects, subject)
-    }
+	for rows.Next() {
+		var subject types.SubjectResponse
+		err := rows.Scan(
+			&subject.ID,
+			&subject.Name,
+			&subject.Category,
+			&subject.Description,
+			&subject.CreatedAt,
+			&subject.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		subjects = append(subjects, subject)
+	}
 
 	return subjects, nil
 }

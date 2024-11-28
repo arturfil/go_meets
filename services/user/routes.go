@@ -41,7 +41,7 @@ func (h *Handler) RegisterRoutes(router *chi.Mux) {
 	})
 
 	router.Route("/v1/users", func(router chi.Router) {
-        router.Get("/", h.getAllUsers)
+		router.Get("/", h.getAllUsers)
 		router.Get("/bytoken", h.getUserByToken)
 	})
 
@@ -135,13 +135,13 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAllUsers(w http.ResponseWriter, r *http.Request) {
-    users, err := h.store.GetAllUsers()  
-    if err != nil {
-        helpers.ErrorJSON(w, fmt.Errorf("Couldn't get the teachers", err))
-        return
-    }
+	users, err := h.store.GetAllUsers()
+	if err != nil {
+		helpers.ErrorJSON(w, fmt.Errorf("Couldn't get the teachers", err))
+		return
+	}
 
-    helpers.WriteJSON(w, http.StatusOK, users)
+	helpers.WriteJSON(w, http.StatusOK, users)
 }
 
 // getUserByToken - you will get the user by when providing a jwt token

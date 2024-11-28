@@ -23,7 +23,7 @@ func (h *Handler) RegisterRoutes(router *chi.Mux) {
 		router.Get("/", h.getAllSubjects)
 		router.Get("/bycategory/{categoryId}", h.getAllSubjectsByCategory)
 		router.Get("/subject/{subjectId}", h.getSubjectById)
-        router.Get("/search", h.searchSubject)
+		router.Get("/search", h.searchSubject)
 	})
 
 	router.Route("/v1/categories", func(router chi.Router) {
@@ -50,7 +50,7 @@ func (h *Handler) searchSubject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    helpers.WriteJSON(w, http.StatusOK, subjects)
+	helpers.WriteJSON(w, http.StatusOK, subjects)
 }
 
 func (h *Handler) getAllSubjectsByCategory(w http.ResponseWriter, r *http.Request) {

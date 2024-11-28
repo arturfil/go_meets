@@ -43,23 +43,23 @@ func (s *Store) GetAllUsers() ([]types.UserReponse, error) {
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
-        if err != nil {
-            return nil, err
-        }
+		if err != nil {
+			return nil, err
+		}
 
-        roles, err := s.getUserRoles(user.ID)
-        if err != nil {
-            return nil, err
-        }
+		roles, err := s.getUserRoles(user.ID)
+		if err != nil {
+			return nil, err
+		}
 
-        user.Roles = roles
-        if err != nil {
-            return nil, err
-        }
+		user.Roles = roles
+		if err != nil {
+			return nil, err
+		}
 
-        users = append(users, user)
+		users = append(users, user)
 	}
-    return users, nil
+	return users, nil
 }
 
 func (s *Store) GetUserByEmail(email string) (*types.UserReponse, error) {

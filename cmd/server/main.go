@@ -41,7 +41,7 @@ func (app *AppServer) Serve() error {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Recoverer)
-    router.Use(middleware.Logger)
+	router.Use(middleware.Logger)
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -74,9 +74,9 @@ func (app *AppServer) Serve() error {
 	requestHandler.RegisterRoutes(router)
 
 	// teachings entity - in this particular entity I'm going
-    // to couple mulitple small entities that surround a common topic:
-    // - teaching classes
-    // - schedules
+	// to couple mulitple small entities that surround a common topic:
+	// - teaching classes
+	// - schedules
 	teachingStore := teachings.NewStore(app.db)
 	teachingHandler := teachings.NewHandler(teachingStore)
 	teachingHandler.RegisterRoutes(router)
@@ -92,14 +92,14 @@ func (app *AppServer) Serve() error {
 func main() {
 
 	dsn := os.Getenv("DSN")
-    port := os.Getenv("PORT")
+	port := os.Getenv("PORT")
 
 	db, err := db.NewDatabase(dsn)
 	if err != nil {
 		log.Fatal("Cannot connect to database", err)
 	}
 
-    server := NewAppServer(fmt.Sprintf(":%s", port), db.Client)
+	server := NewAppServer(fmt.Sprintf(":%s", port), db.Client)
 	if err := server.Serve(); err != nil {
 		log.Fatal(err)
 	}

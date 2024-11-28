@@ -8,18 +8,18 @@ import (
 )
 
 type Store struct {
-    db *sql.DB
+	db *sql.DB
 }
 
 func NewStore(db *sql.DB) *Store {
-    return &Store{db: db}
+	return &Store{db: db}
 }
 
 func (s *Store) GetAllMeetings() ([]types.MeetingResponse, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout) 
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
 
-    query := `
+	query := `
        SELECT 
             m.id, 
             s.name AS "subject",
@@ -37,62 +37,61 @@ func (s *Store) GetAllMeetings() ([]types.MeetingResponse, error) {
         ; 
     `
 
-    rows, err := s.db.QueryContext(ctx, query)
-    if err != nil {
-        return nil, err 
-    }
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
 
-    var meetings []types.MeetingResponse
-    for rows.Next() {
-        var meeting types.MeetingResponse
-        err := rows.Scan(
-            &meeting.ID,
-            &meeting.Subject,
-            &meeting.Student,
-            &meeting.Teacher,
-            &meeting.StudentAttended,
-            &meeting.StartTime,
-            &meeting.EndTime,
-            &meeting.CreatedAt,
-            &meeting.UpdatedAt,
-        )
-        if err != nil {
-            return nil, err
-        }
-        meetings = append(meetings, meeting)
-    }
-    return meetings, nil
+	var meetings []types.MeetingResponse
+	for rows.Next() {
+		var meeting types.MeetingResponse
+		err := rows.Scan(
+			&meeting.ID,
+			&meeting.Subject,
+			&meeting.Student,
+			&meeting.Teacher,
+			&meeting.StudentAttended,
+			&meeting.StartTime,
+			&meeting.EndTime,
+			&meeting.CreatedAt,
+			&meeting.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		meetings = append(meetings, meeting)
+	}
+	return meetings, nil
 }
 
 func (s *Store) GetMeetingByID(id string) (*types.Meeting, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
 
-    query := `SELECT * from meetings WHERE id = $1`
+	query := `SELECT * from meetings WHERE id = $1`
 
-    var meeting types.Meeting
-    row := s.db.QueryRowContext(ctx, query, id)
-    err := row.Scan(
-        &meeting.ID,
-        &meeting.StudentAttended,
-        &meeting.StartTime,
-        &meeting.EndTime,
-        &meeting.CreatedAt,
-        &meeting.UpdatedAt,
-    )
-    if err != nil {
-        return nil, err
-    }
+	var meeting types.Meeting
+	row := s.db.QueryRowContext(ctx, query, id)
+	err := row.Scan(
+		&meeting.ID,
+		&meeting.StudentAttended,
+		&meeting.StartTime,
+		&meeting.EndTime,
+		&meeting.CreatedAt,
+		&meeting.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-    return &meeting, nil
+	return &meeting, nil
 }
 
-
 func (s *Store) CreateMeeting(meeting types.Meeting) error {
-    ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout) 
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
+	defer cancel()
 
-    query := `
+	query := `
         INSERT INTO meetings (
             subject_id,
             student_id,
@@ -106,29 +105,29 @@ func (s *Store) CreateMeeting(meeting types.Meeting) error {
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
     `
 
-    _, err := s.db.ExecContext(
-        ctx,
-        query,
-        meeting.SubjectID,
-        meeting.StudentID,
-        meeting.TeacherID,
-        meeting.StudentAttended,
-        meeting.StartTime,
-        meeting.EndTime,
-        meeting.CreatedAt,
-        meeting.UpdatedAt,
-    )
-    if err != nil {
-        return err
-    }
-    
-    return nil
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		meeting.SubjectID,
+		meeting.StudentID,
+		meeting.TeacherID,
+		meeting.StudentAttended,
+		meeting.StartTime,
+		meeting.EndTime,
+		meeting.CreatedAt,
+		meeting.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Store) UpdateMeeting(meeting types.Meeting) error {
-    return nil
+	return nil
 }
 
 func (s *Store) DeleteMeeting(id string) error {
-    return nil
+	return nil
 }

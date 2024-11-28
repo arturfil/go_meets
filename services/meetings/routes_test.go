@@ -12,51 +12,48 @@ import (
 )
 
 func TestMeetingHandlers(t *testing.T) {
-    meetingStore := &mockMeetingStore{}
-    handler := NewHandler(meetingStore)
+	meetingStore := &mockMeetingStore{}
+	handler := NewHandler(meetingStore)
 
-    t.Run("should return all meetings", func(t *testing.T) {
+	t.Run("should return all meetings", func(t *testing.T) {
 
-    })
+	})
 
-    req, err := http.NewRequest(http.MethodGet, "/v1/meetings", nil)
-    if err != nil {
-        log.Println("error")
-        return 
-    }
+	req, err := http.NewRequest(http.MethodGet, "/v1/meetings", nil)
+	if err != nil {
+		log.Println("error")
+		return
+	}
 
-    rr := httptest.NewRecorder()
-    router := chi.NewRouter()
+	rr := httptest.NewRecorder()
+	router := chi.NewRouter()
 
-    router.HandleFunc("/v1/meetings", handler.getAllMeetings)
-    router.ServeHTTP(rr, req)
+	router.HandleFunc("/v1/meetings", handler.getAllMeetings)
+	router.ServeHTTP(rr, req)
 
-    if rr.Code != http.StatusOK {
-        t.Errorf("[register] expected status code %d, got %d, -> %v", http.StatusOK, rr.Code, rr.Body)
-    }
+	if rr.Code != http.StatusOK {
+		t.Errorf("[register] expected status code %d, got %d, -> %v", http.StatusOK, rr.Code, rr.Body)
+	}
 }
 
-
-type mockMeetingStore struct {}
+type mockMeetingStore struct{}
 
 func (m *mockMeetingStore) GetAllMeetings() ([]types.MeetingResponse, error) {
-    return nil, nil
+	return nil, nil
 }
 
 func (m *mockMeetingStore) GetMeetingByID(id string) (types.Meeting, error) {
-    return types.Meeting{}, nil
+	return types.Meeting{}, nil
 }
 
 func (m *mockMeetingStore) CreateMeeting(meeting types.Meeting) error {
-    return nil
+	return nil
 }
-
 
 func (m *mockMeetingStore) UpdateMeeting(meeting types.Meeting) error {
-    return nil
+	return nil
 }
 
-
 func (m *mockMeetingStore) DeleteMeeting(id string) error {
-    return nil
+	return nil
 }

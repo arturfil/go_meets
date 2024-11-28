@@ -85,17 +85,17 @@ func (s *Store) DeleteTeaching(teachingId string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
-    query := `
+	query := `
         DELETE FROM teachings WHERE id = $1;
     `
 
-    res, err := s.db.ExecContext(ctx, query, teachingId)
-    if err != nil {
-        return err
-    }
-    
-    fmt.Println("result", res)
-    return nil
+	res, err := s.db.ExecContext(ctx, query, teachingId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("result", res)
+	return nil
 }
 
 func (s *Store) GetSchedules(userId string) ([]types.Schedule, error) {
@@ -136,9 +136,9 @@ func (s *Store) GetSchedules(userId string) ([]types.Schedule, error) {
 			&schedule.CreatedAt,
 			&schedule.UpdatedAt,
 		)
-        if err != nil {
-            return nil, err
-        }
+		if err != nil {
+			return nil, err
+		}
 
 		schedules = append(schedules, schedule)
 	}
