@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/arturfil/meetings_app_server/helpers"
+	"github.com/arturfil/meetings_app_server/middlewares"
 	"github.com/arturfil/meetings_app_server/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
@@ -41,9 +42,14 @@ func (h *Handler) RegisterRoutes(router *chi.Mux) {
 	})
 
 	router.Route("/v1/users", func(router chi.Router) {
-		router.Get("/", h.getAllUsers)
-		router.Get("/bytoken", h.getUserByToken)
+        router.Get("/bytoken", h.getUserByToken)
 	})
+
+    router.Route("/v1/users/admin", func(router chi.Router) {
+		router.Use(middlewares.IsAuthorized)
+		router.Get("/", h.getAllUsers)
+    })
+
 
 }
 

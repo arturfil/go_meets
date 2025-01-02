@@ -22,17 +22,18 @@ CREATE TABLE role_relations (
   PRIMARY KEY ("user_id", "role_id")
 );
 
-CREATE TYPE request_type AS ENUM ('teach request', 'create subject request');
+CREATE TYPE request_type AS ENUM ('teach request', 'create subject request', 'create category request');
 CREATE TYPE request_status AS ENUM ('pending', 'approved', 'denied');
 
 CREATE TABLE requests (
-  "id" uuid PRIMARY KEY REFERENCES users(id),
-  "status" request_status NOT NULL,
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "user_id" uuid REFERENCES users(id),
+  "status" request_status NOT NULL DEFAULT 'pending',
   "type" request_type NOT NULL,
-  "subject_request_name" VARCHAR DEFAULT '',
-  "subject_request_type" VARCHAR DEFAULT '',
+  "value" VARCHAR DEFAULT '',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "updated_at" timestamptz NOT NULL DEFAULT (now())
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  UNIQUE("user_id", "type", "value")
 );
 
 CREATE TABLE meetings (

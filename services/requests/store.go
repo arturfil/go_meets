@@ -22,8 +22,8 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
 	defer cancel()
 
 	query := `
-        SELECT r.id, u.first_name, u.last_name, r.status, r.type FROM requests r
-        JOIN users u ON u.id = r.id;
+        SELECT r.id, r.user_id, u.first_name, u.last_name, r.status, r.value, r.type FROM requests r
+        JOIN users u ON u.id = r.user_id;
     ;
     `
 
@@ -37,9 +37,11 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
 		var request types.RequestResponse
 		err := rows.Scan(
 			&request.ID,
+            &request.UserID,
 			&request.FirstName,
 			&request.LastName,
 			&request.Status,
+            &request.Value,
 			&request.Type,
 		)
 		if err != nil {
@@ -47,6 +49,7 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
 		}
 		requests = append(requests, request)
 	}
+
 	return requests, nil
 }
 
@@ -55,10 +58,10 @@ func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
 	defer cancel()
 
 	query := `
-        SELECT r.id, r.status, u.first_name, u.last_name, r.type, r.subject_request_type, r.subject_request_name
+        SELECT r.id, r.status, u.first_name, u.last_name, r.type, r.value
         FROM requests r 
-        INNER JOIN users u ON u.id = r.id
-        WHERE r.id = $1
+        INNER JOIN users u ON u.id = r.user_id
+        WHERE r.user_id = $1
     `
 
 	var request types.RequestResponse
@@ -69,8 +72,7 @@ func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
 		&request.FirstName,
 		&request.LastName,
 		&request.Type,
-		&request.SubjectRequestType,
-		&request.SubjectRequestName,
+		&request.Value,
 	)
 	if err != nil {
 		return nil, err
@@ -88,18 +90,18 @@ func (s *Store) CreateRequest(request types.Request) error {
 	query := `
         INSERT INTO requests(
             id,
-            status,
-            type
+            type,
+            value
         )
-        VALUES($1, $2, $3);
+        VALUES($1, $2, COALESCE($3, ''));
     `
 
 	_, err := s.db.ExecContext(
 		ctx,
 		query,
 		request.ID,
-		request.Status,
 		request.Type,
+		request.Value,
 	)
 	if err != nil {
 		log.Println("error in query", err)
@@ -129,11 +131,13 @@ func (s *Store) UpdateRequest(userId string, request types.Request) error {
         VALUES ($1, $2)
     `
 
+    log.Print("reuest", request)
+
 	if request.Status == "approved" && request.Type == "teach request" {
 		_, err = s.db.ExecContext(
 			ctx,
 			role_relation_query,
-			&request.ID,
+			&request.UserID,
 			"71dc50c1-1934-4da1-91a5-2fb73fadb39e", // fixed id of teacher role
 		)
 		if err != nil {

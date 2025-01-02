@@ -45,9 +45,9 @@ INSERT INTO public.teachings (id, teacher_id, subject_id, created_at, updated_at
 ('c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f', 'aef0a244-f285-4948-a8b7-68b610a879d0', 'f0e4f1a5-3c5d-4b7e-bf0a-9a8d7e6f5c4d', '2024-05-20 00:23:36.857134+00', '2024-05-20 00:23:36.857134+00');
 
 -- Insert requests (unchanged)
-INSERT INTO public.requests VALUES 
-('aef0a244-f285-4948-a8b7-68b610a879d0', 'pending', 'teach request'),
-('efebbf58-1946-4d9b-a5cf-c2d3c8f4aa0c', 'pending', 'teach request');
+INSERT INTO requests(user_id, type) VALUES 
+('aef0a244-f285-4948-a8b7-68b610a879d0', 'teach request'),
+('efebbf58-1946-4d9b-a5cf-c2d3c8f4aa0c', 'teach request');
 
 -- Insert roles (unchanged)
 INSERT INTO roles (id, description) VALUES 

@@ -8,19 +8,19 @@ type RequestStore interface {
 }
 
 type Request struct {
-	ID                 string `json:"id"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	SubjectRequestName string `json:"subject_request_name"`
-	SubjectRequestType string `json:"subject_request_type"`
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+	Status string `json:"status,omitempty"`
+	Type   string `json:"type"`
+	Value  string `json:"value,omitempty"`
 }
 
 type RequestResponse struct {
-	ID                 string `json:"id"`
-	FirstName          string `json:"first_name"`
-	LastName           string `json:"last_name"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	SubjectRequestName string `json:"subject_request_name"`
-	SubjectRequestType string `json:"subject_request_type"`
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Status    string `json:"status"`
+	Type      string `json:"type"`
+	Value     string `json:"value,omitempty"`
 }
