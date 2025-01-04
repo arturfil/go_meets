@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/arturfil/meetings_app_server/types"
@@ -53,7 +54,7 @@ func (s *Store) GetAllRequests() ([]types.RequestResponse, error) {
 	return requests, nil
 }
 
-func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
+func (s *Store) GetRequestById(id, queryType string) (*types.RequestResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
@@ -63,6 +64,12 @@ func (s *Store) GetRequestById(id string) (*types.RequestResponse, error) {
         INNER JOIN users u ON u.id = r.user_id
         WHERE r.user_id = $1
     `
+
+    log.Println("queryType: ->", queryType)
+
+    if queryType != "" {
+        query += fmt.Sprintf(` AND r.type = '%s'`, queryType)
+    }
 
 	var request types.RequestResponse
 	row := s.db.QueryRowContext(ctx, query, id)
@@ -89,7 +96,7 @@ func (s *Store) CreateRequest(request types.Request) error {
 
 	query := `
         INSERT INTO requests(
-            id,
+            user_id,
             type,
             value
         )
@@ -99,7 +106,7 @@ func (s *Store) CreateRequest(request types.Request) error {
 	_, err := s.db.ExecContext(
 		ctx,
 		query,
-		request.ID,
+		request.UserID,
 		request.Type,
 		request.Value,
 	)

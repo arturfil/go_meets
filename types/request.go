@@ -3,7 +3,7 @@ package types
 type RequestStore interface {
 	CreateRequest(request Request) error
 	GetAllRequests() ([]RequestResponse, error)
-	GetRequestById(id string) (*RequestResponse, error)
+	GetRequestById(id, queryType string) (*RequestResponse, error)
 	UpdateRequest(id string, request Request) error
 }
 

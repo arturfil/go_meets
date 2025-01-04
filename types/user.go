@@ -7,11 +7,11 @@ import (
 )
 
 type UserStore interface {
-	GetAllUsers() ([]UserReponse, error)
+	GetAllUsers() ([]UserResponse, error)
 	GetTeachers() ([]User, error)
 	SearchTeachers(searchQuery string) ([]User, error)
-	GetUserByEmail(email string) (*UserReponse, error)
-	GetUserById(id string) (*UserReponse, error)
+	GetUserByEmail(email string) (*UserResponse, error)
+	GetUserById(id string) (*UserResponse, error)
 	CreateUser(user RegisterUserPayload) error
 	Update() error
 	Delete(id string) error
@@ -24,7 +24,7 @@ type UsersAndRoles struct {
 	Description string `json:"description"`
 }
 
-type UserReponse struct {
+type UserResponse struct {
 	ID        string    `json:"id"`
 	Email     string    `json:"email"`
 	FirstName string    `json:"first_name,omitempty"`

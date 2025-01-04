@@ -17,7 +17,7 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) GetAllUsers() ([]types.UserReponse, error) {
+func (s *Store) GetAllUsers() ([]types.UserResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
@@ -32,9 +32,9 @@ func (s *Store) GetAllUsers() ([]types.UserReponse, error) {
 		return nil, err
 	}
 
-	var users []types.UserReponse
+	var users []types.UserResponse
 	for rows.Next() {
-		var user types.UserReponse
+		var user types.UserResponse
 		err := rows.Scan(
 			&user.ID,
 			&user.Email,
@@ -62,7 +62,7 @@ func (s *Store) GetAllUsers() ([]types.UserReponse, error) {
 	return users, nil
 }
 
-func (s *Store) GetUserByEmail(email string) (*types.UserReponse, error) {
+func (s *Store) GetUserByEmail(email string) (*types.UserResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
@@ -73,7 +73,7 @@ func (s *Store) GetUserByEmail(email string) (*types.UserReponse, error) {
             WHERE email = $1
         `
 
-	var user types.UserReponse
+	var user types.UserResponse
 
 	// scan user
 	row := s.db.QueryRowContext(ctx, query, email)
@@ -100,7 +100,7 @@ func (s *Store) GetUserByEmail(email string) (*types.UserReponse, error) {
 	return &user, nil
 }
 
-func (s *Store) GetUserById(id string) (*types.UserReponse, error) {
+func (s *Store) GetUserById(id string) (*types.UserResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), types.DBTimeout)
 	defer cancel()
 
@@ -109,7 +109,7 @@ func (s *Store) GetUserById(id string) (*types.UserReponse, error) {
         FROM users u where id = $1
     `
 
-	var user types.UserReponse
+	var user types.UserResponse
 
 	row := s.db.QueryRowContext(ctx, query, id)
 	err := row.Scan(

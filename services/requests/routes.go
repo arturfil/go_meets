@@ -39,7 +39,9 @@ func (h *Handler) getAllRequests(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getRequestById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	request, err := h.store.GetRequestById(id)
+    queryType := r.URL.Query().Get("type")
+
+	request, err := h.store.GetRequestById(id, queryType)
 	if err != nil {
 		helpers.WriteERROR(w, http.StatusInternalServerError, err)
 		log.Println("Error", err)
